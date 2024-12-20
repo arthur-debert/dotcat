@@ -1,0 +1,52 @@
+#! /usr/bin/env bash
+
+# Usage: ./kick <output_dir> [--create-github-repo]
+
+OUTPUT_DIR=$1
+CREATE_GITHUB_REPO=$2
+
+if [ -z "$OUTPUT_DIR" ]; then
+    echo "Usage: $0 <output_dir> [--create-github-repo]"
+    exit 1
+fi
+
+# Call the pykick.kick script
+echo "Generating template for new project"
+$(poetry env info -e) pykick/kick.py "$OUTPUT_DIR" || exit 1
+echo "Template generated"
+
+# Give execution permission to all files in the bin directory
+echo "Giving execution permission to all files in the bin directory"
+chmod +x "$OUTPUT_DIR/bin/"*
+
+# Change to the output directory
+echo "Dropping you into the project directory"
+cd "$OUTPUT_DIR" || exit 1
+
+# Ensure the setup script has execution permission
+chmod +x ./bin/setup
+
+# Run the setup script
+echo  "Running your very first test case"
+./bin/setup || exit 1
+
+# Initialize a new git repository
+echo "Initializing a new git repository"
+git init || exit 1
+
+# Add the repository to GitHub if flag is set
+if [ "$CREATE_GITHUB_REPO" == "--create-github-repo" ]; then
+    echo "Creating a new GitHub repository"
+    REPO_NAME=$(basename "$OUTPUT_DIR")
+    gh repo create "$REPO_NAME" --private --source=. --remote=origin
+fi
+
+# Check if PyPI tokens are set and run publish_setup if they are
+if [ -n "$PYPI_PROD_TOKEN" ]; then
+    echo "Setting up  PyPI"
+    ./bin/publish_setup "$PYPI_PROD_TOKEN" "$PYPI_TEST_TOKEN" || exit 1
+fi
+
+echo "Now dropping you into the shell"
+#poetry shell || exit
+echo "Project setup complete."

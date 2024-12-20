@@ -1,0 +1,39 @@
+#!  /usr/bin/env bash
+
+# Installs the right python version (with brew) and poetry as needed.
+# Then creates the poetry environment and installs the dependencies.
+# Finally, runs the tests to make sure everything is working.
+
+# if version has been passed as an argument, use it
+PYTHON_VERSION=${1:-'3.9'}
+echo "Setting up python version: $PYTHON_VERSION environment"
+
+install_pythonversion(){
+     version=$1
+     if [[ "$(which python"$version")" == "" ]]; then
+         echo "Installing python$version"
+         brew install python"$version"
+     else
+         echo "python$version already installed"
+     fi
+}
+
+install_poetry(){
+    if  [[ "$(which poetry)" == "" ]]; then
+        echo "Installing poetry"
+        brew install poetry
+    else
+        echo "poetry already installed"
+    fi
+}
+
+install_pythonversion "$PYTHON_VERSION"
+install_poetry
+
+echo "activating python$PYTHON_VERSION environment"
+poetry env use "$PYTHON_VERSION" &&\
+poetry install --with dev --with docs &&\
+echo "Last thing: running your first test" &&\
+poetry run pytest && echo "Your first test ran!"
+echo    "Setup complete"
+
