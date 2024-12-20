@@ -15,10 +15,10 @@ jobs:
               uses: actions/checkout@v2
 
             # this workflow file will pass through jinja, and we need to escape the  matrix.python-version  to avoid jinja parsing it
-            - name: Set up Python {{ matrix.python-version }}
+            - name: Set up Python ${{ matrix.python-version }}
               uses: actions/setup-python@v2
               with:
-                  python-version: {{ matrix.python-version }}
+                  python-version: ${{ matrix.python-version }}
 
             - name: Install dependencies
               run: |
