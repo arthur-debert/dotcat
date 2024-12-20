@@ -59,6 +59,8 @@ def todot(adict, lookup_path):
     Returns:
         The value at the specified nested key, or None if the key doesn't exist.
     """
+    if adict is None:
+        raise KeyError(f"key '{bold(lookup_path.split('.')[0])}' not found in {italics('')}")
     found_keys = []
     for key in lookup_path.split('.'):
         adict = adict.get(key)
