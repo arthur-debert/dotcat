@@ -14,6 +14,7 @@ import sys
 import os
 import toml
 import json
+from io import StringIO
 
 def italics(text):
     return f"\033[3m{text}\033[0m"
@@ -83,7 +84,10 @@ def parse_file(filename):
     for parser in parsers:
         try:
             with open(filename, 'r') as file:
-                return parser(file)
+                content = file.read().strip()
+                if not content:
+                    raise ValueError(f"File is empty: {filename}")
+                return parser(StringIO(content))
         except Exception:
             continue
     raise ValueError(f"Unable to parse the file: {filename}")
