@@ -133,6 +133,8 @@ def test_complex_output_json(complex_data):
         }
     ]
 }'''
+    expected_output = '''{"name": "Example", "age": 30, "height": 5.9, "birthdate": "1990-01-01", "address": {"street": "123 Main St", "city": "Anytown", "zip": 12345}, "phones": [{"type": "home", "number": "555-555-5555"}, {"type": "work", "number": "555-555-5556"}], "emails": [{"personal": "example@example.com"}, {"work": "work@example.com"}], "projects": [{"name": "Project A", "tasks": [{"task": "Task 1", "due": "2023-01-01"}, {"task": "Task 2", "due": "2023-02-01"}]}, {"name": "Project B", "tasks": [{"task": "Task 3", "due": "2023-03-01"}, {"task": "Task 4", "due": "2023-04-01"}]}]}'''
+
     assert output.strip() == expected_output.strip()
 
 def test_complex_output_yaml(complex_data):

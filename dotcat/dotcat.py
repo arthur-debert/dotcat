@@ -150,13 +150,15 @@ def format_output(data: Any, output_format: str) -> str:
 
     if output_format == 'raw':
         return str(data)
-    elif output_format == 'formatted, json':
+    if output_format in ('formatted', 'json'):
         import json
         def date_converter(o):
             if isinstance(o, (date, datetime)):
                 return o.isoformat()
-            return o  # Return other objects unchanged
-        return json.dumps(data, indent=4, default=date_converter)
+            return o
+
+        indent = 4 if output_format == 'formatted' else None
+        return json.dumps(data, indent=indent, default=date_converter)
     elif output_format == 'yaml':
         import yaml
         return yaml.dump(data, default_flow_style=False)
