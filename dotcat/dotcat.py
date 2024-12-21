@@ -27,8 +27,10 @@ from typing import Any, Dict, List, Tuple, Union
 ParsedData = Union[Dict[str, Any], List[Any]]
 
 ######################################################################
-### Output formatting functions
+# Output formatting functions
 ######################################################################
+
+
 def italics(text: str) -> str:
     """
     Returns the given text formatted in italics.
@@ -41,6 +43,7 @@ def italics(text: str) -> str:
     """
     return f"\033[3m{text}\033[0m"
 
+
 def bold(text: str) -> str:
     """
     Returns the given text formatted in bold.
@@ -52,6 +55,7 @@ def bold(text: str) -> str:
         The formatted text.
     """
     return f"\033[1m{text}\033[0m"
+
 
 USAGE = f"""
 {bold('dotcat')}
@@ -66,11 +70,14 @@ dotcat somefile.toml a.b.c
 """
 
 ######################################################################
-### Parsing functions
+# Parsing functions
 ######################################################################
+
+
 class ParseError(Exception):
     """Custom exception for parsing errors."""
     pass
+
 
 def parse_ini(file: StringIO) -> Dict[str, Dict[str, str]]:
     """
@@ -87,6 +94,7 @@ def parse_ini(file: StringIO) -> Dict[str, Dict[str, str]]:
     config.read_file(file)
     return {s: dict(config.items(s)) for s in config.sections()}
 
+
 def parse_yaml(file: StringIO) -> ParsedData:
     """
     Parses a YAML file and returns its content.
@@ -101,7 +109,9 @@ def parse_yaml(file: StringIO) -> ParsedData:
     try:
         return yaml.safe_load(file)
     except yaml.YAMLError as e:
-        raise ParseError(f"[ERROR] {file.name}: Unable to parse YAML file: {str(e)}")
+        raise ParseError(
+            f"[ERROR] {file.name}: Unable to parse YAML file: {str(e)}")
+
 
 def parse_json(file: StringIO) -> ParsedData:
     """
@@ -117,7 +127,9 @@ def parse_json(file: StringIO) -> ParsedData:
     try:
         return json.load(file)
     except json.JSONDecodeError as e:
-        raise ParseError(f"[ERROR] {file.name}: Unable to parse JSON file: {str(e)}")
+        raise ParseError(
+            f"[ERROR] {file.name}: Unable to parse JSON file: {str(e)}")
+
 
 def parse_toml(file: StringIO) -> ParsedData:
     """
@@ -133,7 +145,9 @@ def parse_toml(file: StringIO) -> ParsedData:
     try:
         return toml.load(file)
     except toml.TomlDecodeError as e:
-        raise ParseError(f"[ERROR] {file.name}: Unable to parse TOML file: {str(e)}")
+        raise ParseError(
+            f"[ERROR] {file.name}: Unable to parse TOML file: {str(e)}")
+
 
 FORMATS = [
     (['.json'], parse_json),
@@ -141,6 +155,7 @@ FORMATS = [
     (['.toml'], parse_toml),
     (['.ini'], parse_ini)
 ]
+
 
 def parse_file(filename: str) -> ParsedData:
     """
@@ -165,15 +180,18 @@ def parse_file(filename: str) -> ParsedData:
                     return parser(StringIO(content))
                 except ParseError:
                     continue
-            raise ValueError(f"[ERROR] {filename}: Unsupported file format. Supported formats: JSON, YAML, TOML, INI")
+            msg = "Unsupported file format. Supported formats: JSON, YAML, TOML, INI"
+            raise ValueError(f"[ERROR] { filename}:{msg} ")
     except FileNotFoundError:
         raise FileNotFoundError(f"[ERROR] {filename}: File not found")
     except Exception as e:
         raise ValueError(f"[ERROR] {filename}: Unable to parse file: {str(e)}")
 
 ######################################################################
-### Formatting
+# Formatting
 ######################################################################
+
+
 def format_output(data: Any, output_format: str) -> str:
     """
     Formats the output based on the specified format.
@@ -190,6 +208,7 @@ def format_output(data: Any, output_format: str) -> str:
         return str(data)
     if output_format in ('formatted', 'json'):
         import json
+
         def date_converter(o):
             if isinstance(o, (date, datetime)):
                 return o.isoformat()
@@ -202,11 +221,12 @@ def format_output(data: Any, output_format: str) -> str:
         return yaml.dump(data, default_flow_style=False)
     elif output_format == 'toml':
         import toml
-        if isinstance(data, list) and all(isinstance(item, dict) for item in data):  # Check if it's a list of dicts
+        # Check if it's a list of dicts
+        if isinstance(data, list) and all(isinstance(item, dict) for item in data):
             # If it's a list of dictionaries, wrap it in a dictionary with a key like "items"
-            return toml.dumps({"items": data}) # Wrap the list
+            return toml.dumps({"items": data})  # Wrap the list
         else:
-            return toml.dumps(data) # Handle other cases as before
+            return toml.dumps(data)  # Handle other cases as before
 
     elif output_format == 'ini':
         config = ConfigParser()
@@ -221,8 +241,10 @@ def format_output(data: Any, output_format: str) -> str:
         return str(data)
 
 ######################################################################
-### Data access functions
+# Data access functions
 ######################################################################
+
+
 def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
     """
     Accesses a nested dictionary value with an attribute chain encoded by a dot-separated string.
@@ -235,18 +257,23 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
         The value at the specified nested key, or None if the key doesn't exist.
     """
     if data is None:
-        raise KeyError(f"[ERROR] key '{bold(lookup_chain.split('.')[0])}' not found in {italics('')}")
+        chain = lookup_chain.split('.')[0]
+        raise KeyError(
+            f"[ERROR] key '{bold({chain})}' not found in {italics('')}")
     found_keys = []
     for key in lookup_chain.split('.'):
         data = data.get(key)
         if data is None:
-            raise KeyError(f"[ERROR] key '{key}' not found in {'.'.join(found_keys)}")
+            keys = '.'.join(found_keys)
+            raise KeyError(f"[ERROR] key '{key}' not found in { keys}")
         found_keys.append(key)
     return data
 
 ######################################################################
-### Argument parsing, main, and run functions
+# Argument parsing, main, and run functions
 ######################################################################
+
+
 def parse_args(args: List[str]) -> Tuple[str, str, str]:
     """
     Returns the filename, lookup chain, and output format.
@@ -259,8 +286,10 @@ def parse_args(args: List[str]) -> Tuple[str, str, str]:
     """
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('file', type=str, help='The file to read from')
-    parser.add_argument('dot_separated_key', type=str, help='The dot-separated key to look up')
-    parser.add_argument('--output', type=str, default='raw', help='The output format (raw, formatted, json, yaml, toml, ini)')
+    parser.add_argument('dot_separated_key', type=str,
+                        help='The dot-separated key to look up')
+    parser.add_argument('--output', type=str, default='raw',
+                        help='The output format (raw, formatted, json, yaml, toml, ini)')
 
     if args is None or len(args) < 2:
         print(USAGE)
@@ -268,6 +297,7 @@ def parse_args(args: List[str]) -> Tuple[str, str, str]:
 
     parsed_args = parser.parse_args(args)
     return parsed_args.file, parsed_args.dot_separated_key, parsed_args.output
+
 
 def run(args: List[str] = None) -> None:
     """
@@ -297,11 +327,13 @@ def run(args: List[str] = None) -> None:
         print(f"[ERROR] {filename}: " + e.args[0].strip('"'))
         sys.exit(5)  # Key not found
 
+
 def main() -> None:
     """
     The main entry point of the script.
     """
     run(sys.argv[1:])
+
 
 if __name__ == '__main__':
     main()
