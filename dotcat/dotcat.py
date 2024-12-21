@@ -168,6 +168,8 @@ def format_output(data: Any, output_format: str) -> str:
         return toml.dumps(data)
     elif output_format == 'ini':
         config = ConfigParser()
+        if not isinstance(data, dict) or not all(isinstance(v, dict) for v in data.values()):
+            data = {'default': data}
         for section, values in data.items():
             config[section] = values
         output = StringIO()

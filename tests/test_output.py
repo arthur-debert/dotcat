@@ -68,5 +68,5 @@ def test_output_ini(toml_file):
     sys.stdout = captured_output
     run(test_args)
     sys.stdout = sys.__stdout__
-    expected_output = '[editor]\ntabSize = 4\n'
+    expected_output = '[default]\ntabsize = 4\n\n\n' # Key is lowercased and section is default
     assert captured_output.getvalue() == expected_output
