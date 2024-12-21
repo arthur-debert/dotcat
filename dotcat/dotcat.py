@@ -133,9 +133,9 @@ FORMATS = [
     (['.ini'], parse_ini)
 ]
 
-def get_nested_value(adict: Dict[str, Any], lookup_path: str) -> Any:
+def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
     """
-    Accesses a nested dictionary value using a dot-separated string.
+    Accesses a nested dictionary value with an attribute chain encoded by a dot-separated string.
 
     Args:
         adict: The dictionary to access.
@@ -144,15 +144,15 @@ def get_nested_value(adict: Dict[str, Any], lookup_path: str) -> Any:
     Returns:
         The value at the specified nested key, or None if the key doesn't exist.
     """
-    if adict is None:
-        raise KeyError(f"[ERROR] key '{bold(lookup_path.split('.')[0])}' not found in {italics('')}")
+    if data is None:
+        raise KeyError(f"[ERROR] key '{bold(lookup_chain.split('.')[0])}' not found in {italics('')}")
     found_keys = []
-    for key in lookup_path.split('.'):
-        adict = adict.get(key)
-        if adict is None:
+    for key in lookup_chain.split('.'):
+        data = data.get(key)
+        if data is None:
             raise KeyError(f"[ERROR] key '{key}' not found in {'.'.join(found_keys)}")
         found_keys.append(key)
-    return adict
+    return data
 
 def parse_file(filename: str) -> ParsedData:
     """
@@ -190,13 +190,15 @@ def run(args: List[str] = None) -> None:
     Args:
         args: The list of command-line arguments.
     """
+    # validates arguments
     if args is None:
         print(USAGE)
     elif len(args) != 2:
         print(USAGE)
         sys.exit(2)  # Invalid usage
+    filename, lookup_chain = args
 
-    filename, lookup = args
+    # gets the parsed data
     try:
         data = parse_file(filename)
     except FileNotFoundError as e:
@@ -208,7 +210,7 @@ def run(args: List[str] = None) -> None:
 
     # get the value at the specified key
     try:
-        print(get_nested_value(data, lookup))
+        print(from_attr_chain(data, lookup_chain))
     except KeyError as e:
         print(f"[ERROR] {filename}: " + e.args[0].strip('"'))
         sys.exit(5)  # Key not found
