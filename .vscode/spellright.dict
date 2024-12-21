@@ -2,4 +2,5 @@ nargs
 Nargs
 narg
 pytest
-{{pykick.name}}
+{{pykick.name}}dotcat
+dotcat
