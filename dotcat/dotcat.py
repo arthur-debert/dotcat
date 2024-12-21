@@ -16,6 +16,7 @@ Exit Codes:
     5: Key not found
 """
 
+from datetime import date, datetime
 import sys
 import os
 import argparse
@@ -149,17 +150,13 @@ def format_output(data: Any, output_format: str) -> str:
 
     if output_format == 'raw':
         return str(data)
-    elif output_format == 'formatted':
+    elif output_format == 'formatted, json':
         import json
-        if isinstance(data, dict):
-            return json.dumps(data, indent=4)
-        elif isinstance(data, list):
-            return json.dumps(data, indent=4)
-        else:
-            return str(data)
-    elif output_format == 'json':
-        import json
-        return json.dumps(data, indent=4)
+        def date_converter(o):
+            if isinstance(o, (date, datetime)):
+                return o.isoformat()
+            return o  # Return other objects unchanged
+        return json.dumps(data, indent=4, default=date_converter)
     elif output_format == 'yaml':
         import yaml
         return yaml.dump(data, default_flow_style=False)
