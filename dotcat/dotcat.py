@@ -133,7 +133,7 @@ FORMATS = [
     (['.ini'], parse_ini)
 ]
 
-def todot(adict: Dict[str, Any], lookup_path: str) -> Any:
+def get_nested_value(adict: Dict[str, Any], lookup_path: str) -> Any:
     """
     Accesses a nested dictionary value using a dot-separated string.
 
@@ -208,7 +208,7 @@ def run(args: List[str] = None) -> None:
 
     # get the value at the specified key
     try:
-        print(todot(data, lookup))
+        print(get_nested_value(data, lookup))
     except KeyError as e:
         print(f"[ERROR] {filename}: " + e.args[0].strip('"'))
         sys.exit(5)  # Key not found
