@@ -13,11 +13,30 @@ Example:
 import sys
 import os
 from io import StringIO
+from typing import Any, Dict
 
-def italics(text):
+def italics(text: str) -> str:
+    """
+    Returns the given text formatted in italics.
+
+    Args:
+        text: The text to format.
+
+    Returns:
+        The formatted text.
+    """
     return f"\033[3m{text}\033[0m"
 
-def bold(text):
+def bold(text: str) -> str:
+    """
+    Returns the given text formatted in bold.
+
+    Args:
+        text: The text to format.
+
+    Returns:
+        The formatted text.
+    """
     return f"\033[1m{text}\033[0m"
 
 USAGE = f"""
@@ -32,21 +51,57 @@ dotcat config.json python.editor.tabSize
 dotcat somefile.toml a.b.c
 """
 
-def parse_ini(file):
+def parse_ini(file: StringIO) -> Dict[str, Dict[str, str]]:
+    """
+    Parses an INI file and returns its content as a dictionary.
+
+    Args:
+        file: The file object to parse.
+
+    Returns:
+        The parsed content as a dictionary.
+    """
     from configparser import ConfigParser
     config = ConfigParser()
     config.read_file(file)
     return {s: dict(config.items(s)) for s in config.sections()}
 
-def parse_yaml(file):
+def parse_yaml(file: StringIO) -> Any:
+    """
+    Parses a YAML file and returns its content.
+
+    Args:
+        file: The file object to parse.
+
+    Returns:
+        The parsed content.
+    """
     import yaml
     return yaml.safe_load(file)
 
-def parse_json(file):
+def parse_json(file: StringIO) -> Any:
+    """
+    Parses a JSON file and returns its content.
+
+    Args:
+        file: The file object to parse.
+
+    Returns:
+        The parsed content.
+    """
     import json
     return json.load(file)
 
-def parse_toml(file):
+def parse_toml(file: StringIO) -> Any:
+    """
+    Parses a TOML file and returns its content.
+
+    Args:
+        file: The file object to parse.
+
+    Returns:
+        The parsed content.
+    """
     import toml
     return toml.load(file)
 
@@ -57,7 +112,7 @@ FORMATS = [
     (['.ini'], parse_ini)
 ]
 
-def todot(adict, lookup_path):
+def todot(adict: dict, lookup_path: str) -> Any:
     """
     Accesses a nested dictionary value using a dot-separated string.
 
@@ -74,11 +129,11 @@ def todot(adict, lookup_path):
     for key in lookup_path.split('.'):
         adict = adict.get(key)
         if adict is None:
-            raise KeyError(f"key '{bold(key)}' not found in {italics('.'.join(found_keys))}")
+            raise KeyError(f"key '{key}' not found in {'.'.join(found_keys)}")
         found_keys.append(key)
     return adict
 
-def parse_file(filename):
+def parse_file(filename: str) -> Dict[str, Any]:
     """
     Tries to parse the file using different formats (JSON, YAML, TOML, INI).
 
@@ -103,7 +158,7 @@ def parse_file(filename):
             continue
     raise ValueError(f"Unable to parse the file: {filename}")
 
-def run(args=None):
+def run(args: list[str] = None) -> None:
     """
     Processes the command-line arguments and prints the value from the structured data file.
 
@@ -129,7 +184,10 @@ def run(args=None):
         print(f"{filename}: " + e.args[0].strip('"'))
         sys.exit(1)
 
-def main():
+def main() -> None:
+    """
+    The main entry point of the script.
+    """
     run(sys.argv[1:])
 
 if __name__ == '__main__':
