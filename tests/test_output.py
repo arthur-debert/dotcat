@@ -41,7 +41,7 @@ def test_output_json(toml_file):
     sys.stdout = captured_output
     run(test_args)
     sys.stdout = sys.__stdout__
-    expected_output = '{\n    "tabSize": 4\n}\n'
+    expected_output = '{"tabSize": 4}\n'
     assert captured_output.getvalue() == expected_output
 
 def test_output_yaml(toml_file):
