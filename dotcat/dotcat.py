@@ -26,10 +26,9 @@ from typing import Any, Dict, List, Tuple, Union
 
 ParsedData = Union[Dict[str, Any], List[Any]]
 
-class ParseError(Exception):
-    """Custom exception for parsing errors."""
-    pass
-
+######################################################################
+### Output formatting functions
+######################################################################
 def italics(text: str) -> str:
     """
     Returns the given text formatted in italics.
@@ -65,6 +64,13 @@ dotcat <file> <dot_separated_key>
 dotcat config.json python.editor.tabSize
 dotcat somefile.toml a.b.c
 """
+
+######################################################################
+### Parsing functions
+######################################################################
+class ParseError(Exception):
+    """Custom exception for parsing errors."""
+    pass
 
 def parse_ini(file: StringIO) -> Dict[str, Dict[str, str]]:
     """
@@ -136,6 +142,38 @@ FORMATS = [
     (['.ini'], parse_ini)
 ]
 
+def parse_file(filename: str) -> ParsedData:
+    """
+    Tries to parse the file using different formats (JSON, YAML, TOML, INI).
+
+    Args:
+        filename: The name of the file to parse.
+
+    Returns:
+        The parsed content as a dictionary or list.
+    """
+    ext = os.path.splitext(filename)[1].lower()
+    parsers = [parser for fmts, parser in FORMATS if ext in fmts]
+
+    try:
+        with open(filename, 'r') as file:
+            content = file.read().strip()
+            if not content:
+                raise ValueError(f"[ERROR] {filename}: File is empty")
+            for parser in parsers:
+                try:
+                    return parser(StringIO(content))
+                except ParseError:
+                    continue
+            raise ValueError(f"[ERROR] {filename}: Unsupported file format. Supported formats: JSON, YAML, TOML, INI")
+    except FileNotFoundError:
+        raise FileNotFoundError(f"[ERROR] {filename}: File not found")
+    except Exception as e:
+        raise ValueError(f"[ERROR] {filename}: Unable to parse file: {str(e)}")
+
+######################################################################
+### Formatting
+######################################################################
 def format_output(data: Any, output_format: str) -> str:
     """
     Formats the output based on the specified format.
@@ -182,6 +220,9 @@ def format_output(data: Any, output_format: str) -> str:
     else:
         return str(data)
 
+######################################################################
+### Data access functions
+######################################################################
 def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
     """
     Accesses a nested dictionary value with an attribute chain encoded by a dot-separated string.
@@ -203,35 +244,9 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
         found_keys.append(key)
     return data
 
-def parse_file(filename: str) -> ParsedData:
-    """
-    Tries to parse the file using different formats (JSON, YAML, TOML, INI).
-
-    Args:
-        filename: The name of the file to parse.
-
-    Returns:
-        The parsed content as a dictionary or list.
-    """
-    ext = os.path.splitext(filename)[1].lower()
-    parsers = [parser for fmts, parser in FORMATS if ext in fmts]
-
-    try:
-        with open(filename, 'r') as file:
-            content = file.read().strip()
-            if not content:
-                raise ValueError(f"[ERROR] {filename}: File is empty")
-            for parser in parsers:
-                try:
-                    return parser(StringIO(content))
-                except ParseError:
-                    continue
-            raise ValueError(f"[ERROR] {filename}: Unsupported file format. Supported formats: JSON, YAML, TOML, INI")
-    except FileNotFoundError:
-        raise FileNotFoundError(f"[ERROR] {filename}: File not found")
-    except Exception as e:
-        raise ValueError(f"[ERROR] {filename}: Unable to parse file: {str(e)}")
-
+######################################################################
+### Argument parsing, main, and run functions
+######################################################################
 def parse_args(args: List[str]) -> Tuple[str, str, str]:
     """
     Returns the filename, lookup chain, and output format.
