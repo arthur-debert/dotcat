@@ -8,6 +8,12 @@ Usage:
 Example:
     dotcat config.json python.editor.tabSize
     dotcat somefile.toml a.b.c
+
+Exit Codes:
+    2: Invalid usage (wrong number of arguments)
+    3: File not found
+    4: Parsing error
+    5: Key not found
 """
 
 import sys
@@ -159,20 +165,21 @@ def parse_file(filename: str) -> Dict[str, Any]:
     ext = os.path.splitext(filename)[1].lower()
     parsers = [parser for fmts, parser in FORMATS if ext in fmts]
 
-    for parser in parsers:
-        try:
-            with open(filename, 'r') as file:
-                content = file.read().strip()
-                if not content:
-                    raise ValueError(f"[ERROR] {filename}: File is empty")
-                return parser(StringIO(content))
-        except FileNotFoundError:
-            raise FileNotFoundError(f"[ERROR] {filename}: File not found")
-        except ParseError as e:
-            raise ValueError(f"[ERROR] {filename}: {str(e)}")
-        except Exception as e:
-            raise ValueError(f"[ERROR] {filename}: Unable to parse file: {str(e)}")
-    raise ValueError(f"[ERROR] {filename}: Unsupported file format. Supported formats: JSON, YAML, TOML, INI")
+    try:
+        with open(filename, 'r') as file:
+            content = file.read().strip()
+            if not content:
+                raise ValueError(f"[ERROR] {filename}: File is empty")
+            for parser in parsers:
+                try:
+                    return parser(StringIO(content))
+                except ParseError:
+                    continue
+            raise ValueError(f"[ERROR] {filename}: Unsupported file format. Supported formats: JSON, YAML, TOML, INI")
+    except FileNotFoundError:
+        raise FileNotFoundError(f"[ERROR] {filename}: File not found")
+    except Exception as e:
+        raise ValueError(f"[ERROR] {filename}: Unable to parse file: {str(e)}")
 
 def run(args: list[str] = None) -> None:
     """
