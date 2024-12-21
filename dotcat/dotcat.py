@@ -18,6 +18,7 @@ Exit Codes:
 
 import sys
 import os
+import argparse
 from io import StringIO
 from typing import Any, Dict, List, Tuple, Union
 
@@ -185,22 +186,24 @@ def parse_file(filename: str) -> ParsedData:
 
 def parse_args(args: List[str]) -> Tuple[str, str]:
     """
-    Returns the filename an lookup chain.
+    Returns the filename and lookup chain.
+
+    Args:
+        args: The list of command-line arguments.
+
     Returns:
         The filename and lookup chain.
-
     """
-    exit_code = None
-    if args is None:
-        exit_code = 1
-    elif len(args) != 2:
-        exit_code = 2
-    if exit_code is not None:
-        print(USAGE)
-        sys.exit(exit_code)
-    filename, lookup_chain = args
-    return filename, lookup_chain
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('file', type=str, help='The file to read from')
+    parser.add_argument('dot_separated_key', type=str, help='The dot-separated key to look up')
 
+    if args is None or len(args) != 2:
+        print(USAGE)
+        sys.exit(2)
+
+    parsed_args = parser.parse_args(args)
+    return parsed_args.file, parsed_args.dot_separated_key
 
 def run(args: List[str] = None) -> None:
     """
