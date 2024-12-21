@@ -33,3 +33,68 @@ dotcat somefile.toml a.b.c
     assert actual_output == expected_output
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 2
+
+
+def test_argument_parsing_default_output():
+    test_args = ['tests/fixtures/complex.yaml', 'name']
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    run(test_args)
+    sys.stdout = sys.__stdout__
+    actual_output = captured_output.getvalue().strip()
+    assert actual_output == 'Example'
+
+def test_argument_parsing_raw_output():
+    test_args = ['tests/fixtures/complex.yaml', 'name', '--output', 'raw']
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    run(test_args)
+    sys.stdout = sys.__stdout__
+    actual_output = captured_output.getvalue().strip()
+    assert actual_output == 'Example'
+
+def test_argument_parsing_formatted_output():
+    test_args = ['tests/fixtures/complex.yaml', 'address', '--output', 'formatted']
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    run(test_args)
+    sys.stdout = sys.__stdout__
+    actual_output = captured_output.getvalue().strip()
+    assert actual_output.startswith('{') and actual_output.endswith('}')
+
+def test_argument_parsing_json_output():
+    test_args = ['tests/fixtures/complex.yaml', 'phones', '--output', 'json']
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    run(test_args)
+    sys.stdout = sys.__stdout__
+    actual_output = captured_output.getvalue().strip()
+    assert actual_output.startswith('[') and actual_output.endswith(']')
+
+def test_argument_parsing_yaml_output():
+    test_args = ['tests/fixtures/complex.yaml', 'emails', '--output', 'yaml']
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    run(test_args)
+    sys.stdout = sys.__stdout__
+    actual_output = captured_output.getvalue().strip()
+    assert actual_output.startswith('-') and 'personal' in actual_output
+
+def test_argument_parsing_toml_output():
+    test_args = ['tests/fixtures/complex.yaml', 'projects', '--output', 'toml']
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    run(test_args)
+    sys.stdout = sys.__stdout__
+    actual_output = captured_output.getvalue().strip()
+    assert actual_output.startswith('[[items]]') # Updated assertion
+
+
+def test_argument_parsing_ini_output():
+    test_args = ['tests/fixtures/complex.yaml', 'address', '--output', 'ini']
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    run(test_args)
+    sys.stdout = sys.__stdout__
+    actual_output = captured_output.getvalue().strip()
+    assert actual_output.startswith('[default]')

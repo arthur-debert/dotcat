@@ -164,7 +164,12 @@ def format_output(data: Any, output_format: str) -> str:
         return yaml.dump(data, default_flow_style=False)
     elif output_format == 'toml':
         import toml
-        return toml.dumps(data)
+        if isinstance(data, list) and all(isinstance(item, dict) for item in data):  # Check if it's a list of dicts
+            # If it's a list of dictionaries, wrap it in a dictionary with a key like "items"
+            return toml.dumps({"items": data}) # Wrap the list
+        else:
+            return toml.dumps(data) # Handle other cases as before
+
     elif output_format == 'ini':
         config = ConfigParser()
         if not isinstance(data, dict) or not all(isinstance(v, dict) for v in data.values()):
