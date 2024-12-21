@@ -1,96 +1,64 @@
-# dotcat
+# dotcat: Catting Structured Data in Style
 
-Cat structured data in a shell, i.e.
-
-```bash
-dotcat some.json  `user.name.first  # echoes Janet
-```
-
-Access data within JSON, YAML, TOML, and INI files using intuitive dot notation directly from your terminal.  `dotcat` simplifies scripting and configuration management by allowing you to easily extract specific values.
-
-## Features
-
-* Access data within structured data files (JSON, YAML, TOML, INI) using dot notation.
-* Extract specific values and print them to the console.
-* Simplify scripting by making it easy to retrieve configuration data.
-* Supports nested keys and array indexing (e.g., `array[0]`).
-* Clear error messages for file not found, invalid format, and key not found.
-
-## Quick Start
+`dotcat` gives your shell the ability to cat + grep structured data.
 
 ```bash
-echo '{"user": {"name": {"first": "Janet", "last": "Doe"}}}' > data.json
-dotcat data.json user.name.first
-# Output: Janet
+# With a sample json file:
+echo '{"name": "John Doe", "age": 30, "address": {"street": "123 Main St", "city": "Anytown"}}' > data.json
 
-dotcat data.json user.name.last
+# Get the name
+dotcat data.json name
+# Output: John Doe
 
-# Output: Doe
+# Get the city
+dotcat data.json address.city
+# Output: Anytown
 
+# Format the output
+dotcat data.json address --format=yaml
+# Output:
+# street: 123 Main St
+# city:
+#   Anytown
+
+# Use with a YAML file (data.yaml)
+echo 'name: Jane Doe\noccupation: Developer' > data.yaml
+dotcat data.yaml occupation
+# Output: Developer
+
+# Use array index in path (array.json)
+echo '{"items":[{"id":1}, {"id":2}]}' > array.json
+dotcat array.json items.1.id
+# Output: 2
 ```
+
+## Key Features
+
+* **Structured Data Extraction:** Easily read values from JSON, YAML, TOML, and INI files. No more complex scripting or manual parsing.
+* **Dot-Separated Paths:** Access deeply nested values using intuitive dot-separated paths (e.g., `a.b.c`).
+* **Configurable Output:** Control the output format with `--output` flag. Choose from:
+  * `raw`:  Default. Direct string representation of the extracted value.
+  * `formatted`: Pretty-printed JSON output, ideal for readability.
+  * `json`: Compact JSON output.
+  * `yaml`: YAML output.
+  * `toml`: TOML output.
+  * `ini`: INI output.
+* **Clear Error Handling:** Provides informative error messages for invalid files, incorrect paths, or unsupported formats.
+* **Lightweight and Fast:** Built for speed and efficiency.
 
 ## Installation
-
-You can install dotcat using pip:
 
 ```bash
 pip install dotcat
 ```
 
-``
-
-## USAGE
-
-dotcat `<file> <key>`
-
-`<file>`: Path to the structured data file (JSON, YAML, TOML, INI).
-`<key>`: The key to access using dot notation.
-
-## Examples
+Usage
+Basic usage involves specifying the file and the dot-separated key:
 
 ```bash
-# Accessing a simple key
-dotcat config.json user.name
-
-# Accessing nested keys
-dotcat data.yaml server.location.city
-
-# Accessing array elements
-dotcat items.json products[0].name
-dotcat items.json products[2].price
-
-
-# Handling a missing key
-dotcat config.json nonexistent.key
-# Output: Key 'nonexistent.key' not found in file 'config.json'. 'nonexistent' was not found.
-
-# Example with an invalid file format
-dotcat invalid.txt some.key
-# Output: Unable to parse file 'invalid.txt'. Supported formats: JSON, YAML, TOML, INI
-
-
-# Using with pipes (if implemented in the tool)
-cat config.json | dotcat user.name
+dotcat <file> <dot_separated_key> [--output <format>]
 ```
 
-## Contributing
+### Contributing
 
-Contributions are welcome! Please feel free to open issues or submit pull requests.
-
-Tests are done with pytest.
-
-Development Setup
-Clone the repository.
-Create a virtual environment: `python3 -m venv .venv`
-Activate the virtual environment: `source .venv/bin/activate`
-Install development dependencies: `pip install -r requirements.txt`
-
-(create a requirements file if one doesn't exist)
-
-Run tests: pytest
-
-### License
-
-[MIT License][def]
-
-[def]: ./LICENSE
+Contributions are welcome! General 
