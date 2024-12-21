@@ -19,7 +19,9 @@ Exit Codes:
 import sys
 import os
 from io import StringIO
-from typing import Any, Dict
+from typing import Any, Dict, List, Union
+
+ParsedData = Union[Dict[str, Any], List[Any]]
 
 class ParseError(Exception):
     """Custom exception for parsing errors."""
@@ -76,7 +78,7 @@ def parse_ini(file: StringIO) -> Dict[str, Dict[str, str]]:
     config.read_file(file)
     return {s: dict(config.items(s)) for s in config.sections()}
 
-def parse_yaml(file: StringIO) -> Any:
+def parse_yaml(file: StringIO) -> ParsedData:
     """
     Parses a YAML file and returns its content.
 
@@ -92,7 +94,7 @@ def parse_yaml(file: StringIO) -> Any:
     except yaml.YAMLError as e:
         raise ParseError(f"[ERROR] {file.name}: Unable to parse YAML file: {str(e)}")
 
-def parse_json(file: StringIO) -> Any:
+def parse_json(file: StringIO) -> ParsedData:
     """
     Parses a JSON file and returns its content.
 
@@ -108,7 +110,7 @@ def parse_json(file: StringIO) -> Any:
     except json.JSONDecodeError as e:
         raise ParseError(f"[ERROR] {file.name}: Unable to parse JSON file: {str(e)}")
 
-def parse_toml(file: StringIO) -> Any:
+def parse_toml(file: StringIO) -> ParsedData:
     """
     Parses a TOML file and returns its content.
 
@@ -131,7 +133,7 @@ FORMATS = [
     (['.ini'], parse_ini)
 ]
 
-def todot(adict: dict, lookup_path: str) -> Any:
+def todot(adict: Dict[str, Any], lookup_path: str) -> Any:
     """
     Accesses a nested dictionary value using a dot-separated string.
 
@@ -152,7 +154,7 @@ def todot(adict: dict, lookup_path: str) -> Any:
         found_keys.append(key)
     return adict
 
-def parse_file(filename: str) -> Dict[str, Any]:
+def parse_file(filename: str) -> ParsedData:
     """
     Tries to parse the file using different formats (JSON, YAML, TOML, INI).
 
@@ -160,7 +162,7 @@ def parse_file(filename: str) -> Dict[str, Any]:
         filename: The name of the file to parse.
 
     Returns:
-        The parsed content as a dictionary.
+        The parsed content as a dictionary or list.
     """
     ext = os.path.splitext(filename)[1].lower()
     parsers = [parser for fmts, parser in FORMATS if ext in fmts]
@@ -181,7 +183,7 @@ def parse_file(filename: str) -> Dict[str, Any]:
     except Exception as e:
         raise ValueError(f"[ERROR] {filename}: Unable to parse file: {str(e)}")
 
-def run(args: list[str] = None) -> None:
+def run(args: List[str] = None) -> None:
     """
     Processes the command-line arguments and prints the value from the structured data file.
 
