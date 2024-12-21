@@ -15,6 +15,10 @@ import os
 from io import StringIO
 from typing import Any, Dict
 
+class ParseError(Exception):
+    """Custom exception for parsing errors."""
+    pass
+
 def italics(text: str) -> str:
     """
     Returns the given text formatted in italics.
@@ -77,7 +81,10 @@ def parse_yaml(file: StringIO) -> Any:
         The parsed content.
     """
     import yaml
-    return yaml.safe_load(file)
+    try:
+        return yaml.safe_load(file)
+    except yaml.YAMLError as e:
+        raise ParseError(f"Unable to parse YAML file: {str(e)}")
 
 def parse_json(file: StringIO) -> Any:
     """
@@ -90,7 +97,10 @@ def parse_json(file: StringIO) -> Any:
         The parsed content.
     """
     import json
-    return json.load(file)
+    try:
+        return json.load(file)
+    except json.JSONDecodeError as e:
+        raise ParseError(f"Unable to parse JSON file: {str(e)}")
 
 def parse_toml(file: StringIO) -> Any:
     """
@@ -103,7 +113,10 @@ def parse_toml(file: StringIO) -> Any:
         The parsed content.
     """
     import toml
-    return toml.load(file)
+    try:
+        return toml.load(file)
+    except toml.TomlDecodeError as e:
+        raise ParseError(f"Unable to parse TOML file: {str(e)}")
 
 FORMATS = [
     (['.json'], parse_json),
@@ -153,9 +166,13 @@ def parse_file(filename: str) -> Dict[str, Any]:
                 if not content:
                     raise ValueError(f"File is empty: {filename}")
                 return parser(StringIO(content))
-        except Exception:
-            continue
-    raise ValueError(f"Unable to parse the file: {filename}")
+        except FileNotFoundError:
+            raise FileNotFoundError(f"File not found: {filename}")
+        except ParseError as e:
+            raise ValueError(f"Unable to parse file '{filename}': {str(e)}")
+        except Exception as e:
+            raise ValueError(f"Unable to parse file '{filename}': {str(e)}")
+    raise ValueError(f"Unsupported file format: {filename}. Supported formats: JSON, YAML, TOML, INI")
 
 def run(args: list[str] = None) -> None:
     """
@@ -168,20 +185,24 @@ def run(args: list[str] = None) -> None:
         print(USAGE)
     elif len(args) != 2:
         print(USAGE)
-        sys.exit(1)
+        sys.exit(2)  # Invalid usage
 
     filename, lookup = args
     try:
         data = parse_file(filename)
+    except FileNotFoundError as e:
+        print(e)
+        sys.exit(3)  # File not found
     except ValueError as e:
         print(e)
-        sys.exit(1)
+        sys.exit(4)  # Parsing error
+
     # get the value at the specified key
     try:
         print(todot(data, lookup))
     except KeyError as e:
         print(f"{filename}: " + e.args[0].strip('"'))
-        sys.exit(1)
+        sys.exit(5)  # Key not found
 
 def main() -> None:
     """

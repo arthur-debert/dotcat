@@ -32,4 +32,4 @@ dotcat somefile.toml a.b.c
     actual_output = remove_ansi_escape_sequences(captured_output.getvalue().strip())
     assert actual_output == expected_output
     assert pytest_wrapped_e.type == SystemExit
-    assert pytest_wrapped_e.value.code == 1
+    assert pytest_wrapped_e.value.code == 2
