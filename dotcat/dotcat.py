@@ -145,7 +145,6 @@ def parse_file(filename: str) -> Dict[str, Any]:
     """
     ext = os.path.splitext(filename)[1].lower()
     parsers = [parser for fmts, parser in FORMATS if ext in fmts]
-    parsers += [parser for fmts, parser in FORMATS if ext not in fmts]
 
     for parser in parsers:
         try:
