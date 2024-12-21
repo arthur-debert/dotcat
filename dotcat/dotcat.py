@@ -19,6 +19,7 @@ Exit Codes:
 import sys
 import os
 import argparse
+from configparser import ConfigParser
 from io import StringIO
 from typing import Any, Dict, List, Tuple, Union
 
@@ -134,6 +135,47 @@ FORMATS = [
     (['.ini'], parse_ini)
 ]
 
+def format_output(data: Any, output_format: str) -> str:
+    """
+    Formats the output based on the specified format.
+
+    Args:
+        data: The data to format.
+        output_format: The format of the output.
+
+    Returns:
+        The formatted output.
+    """
+
+    if output_format == 'raw':
+        return str(data)
+    elif output_format == 'formatted':
+        import json
+        if isinstance(data, dict):
+            return json.dumps(data, indent=4)
+        elif isinstance(data, list):
+            return json.dumps(data, indent=4)
+        else:
+            return str(data)
+    elif output_format == 'json':
+        import json
+        return json.dumps(data, indent=4)
+    elif output_format == 'yaml':
+        import yaml
+        return yaml.dump(data, default_flow_style=False)
+    elif output_format == 'toml':
+        import toml
+        return toml.dumps(data)
+    elif output_format == 'ini':
+        config = ConfigParser()
+        for section, values in data.items():
+            config[section] = values
+        output = StringIO()
+        config.write(output)
+        return output.getvalue()
+    else:
+        return str(data)
+
 def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
     """
     Accesses a nested dictionary value with an attribute chain encoded by a dot-separated string.
@@ -184,26 +226,27 @@ def parse_file(filename: str) -> ParsedData:
     except Exception as e:
         raise ValueError(f"[ERROR] {filename}: Unable to parse file: {str(e)}")
 
-def parse_args(args: List[str]) -> Tuple[str, str]:
+def parse_args(args: List[str]) -> Tuple[str, str, str]:
     """
-    Returns the filename and lookup chain.
+    Returns the filename, lookup chain, and output format.
 
     Args:
         args: The list of command-line arguments.
 
     Returns:
-        The filename and lookup chain.
+        The filename, lookup chain, and output format.
     """
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('file', type=str, help='The file to read from')
     parser.add_argument('dot_separated_key', type=str, help='The dot-separated key to look up')
+    parser.add_argument('--output', type=str, default='raw', help='The output format (raw, formatted, json, yaml, toml, ini)')
 
-    if args is None or len(args) != 2:
+    if args is None or len(args) < 2:
         print(USAGE)
         sys.exit(2)
 
     parsed_args = parser.parse_args(args)
-    return parsed_args.file, parsed_args.dot_separated_key
+    return parsed_args.file, parsed_args.dot_separated_key, parsed_args.output
 
 def run(args: List[str] = None) -> None:
     """
@@ -213,7 +256,7 @@ def run(args: List[str] = None) -> None:
         args: The list of command-line arguments.
     """
     # validates arguments
-    filename, lookup_chain = parse_args(args)
+    filename, lookup_chain, output_format = parse_args(args)
 
     # gets the parsed data
     try:
@@ -227,7 +270,8 @@ def run(args: List[str] = None) -> None:
 
     # get the value at the specified key
     try:
-        print(from_attr_chain(data, lookup_chain))
+        value = from_attr_chain(data, lookup_chain)
+        print(format_output(value, output_format))
     except KeyError as e:
         print(f"[ERROR] {filename}: " + e.args[0].strip('"'))
         sys.exit(5)  # Key not found
