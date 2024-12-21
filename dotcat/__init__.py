@@ -1,1 +1,1 @@
-from .dotcat import run
+from .dotcat import run, main
