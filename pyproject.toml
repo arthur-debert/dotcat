@@ -75,9 +75,9 @@ norecursedirs = ["template/py"]
 
 [tool.poetry]
 name = "dotcat"
-version = "0.0.1"
+version = "0.0.4"
 description = "Cat structured data in a shell, i.e. cat some.json user.name.first # echos Janet"
-authors = [{ name = "Arthur Debert", email = "arthur@debert.xzy" }]
+authors = ["Arthur Debert <arthur@debert.xzy>"]
 readme = "README.md"
 include = [
     "templates",
@@ -90,5 +90,5 @@ exclude = [
 ]
 
 [tool.poetry.scripts]
-kick = 'pykick.kick:run'
-docs-build = 'bash ./scripts/docs-build:main'
+dotcat = "dotcat:main"
+

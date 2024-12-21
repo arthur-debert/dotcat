@@ -103,19 +103,20 @@ def parse_file(filename):
             continue
     raise ValueError(f"Unable to parse the file: {filename}")
 
-def run(args):
+def run(args=None):
     """
     Processes the command-line arguments and prints the value from the structured data file.
 
     Args:
         args: The list of command-line arguments.
     """
-    lookup = args.pop()
-    filename = args.pop() if args else 'pyproject.toml'
-    if not lookup:
+    if args is None:
+        print(USAGE)
+    elif len(args) != 2:
         print(USAGE)
         sys.exit(1)
-    # load the file
+
+    filename, lookup = args
     try:
         data = parse_file(filename)
     except ValueError as e:
@@ -128,5 +129,8 @@ def run(args):
         print(f"{filename}: " + e.args[0].strip('"'))
         sys.exit(1)
 
-if __name__ == '__main__':
+def main():
     run(sys.argv[1:])
+
+if __name__ == '__main__':
+    main()
