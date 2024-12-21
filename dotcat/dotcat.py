@@ -19,7 +19,7 @@ Exit Codes:
 import sys
 import os
 from io import StringIO
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Tuple, Union
 
 ParsedData = Union[Dict[str, Any], List[Any]]
 
@@ -183,6 +183,25 @@ def parse_file(filename: str) -> ParsedData:
     except Exception as e:
         raise ValueError(f"[ERROR] {filename}: Unable to parse file: {str(e)}")
 
+def parse_args(args: List[str]) -> Tuple[str, str]:
+    """
+    Returns the filename an lookup chain.
+    Returns:
+        The filename and lookup chain.
+
+    """
+    exit_code = None
+    if args is None:
+        exit_code = 1
+    elif len(args) != 2:
+        exit_code = 2
+    if exit_code is not None:
+        print(USAGE)
+        sys.exit(exit_code)
+    filename, lookup_chain = args
+    return filename, lookup_chain
+
+
 def run(args: List[str] = None) -> None:
     """
     Processes the command-line arguments and prints the value from the structured data file.
@@ -191,12 +210,7 @@ def run(args: List[str] = None) -> None:
         args: The list of command-line arguments.
     """
     # validates arguments
-    if args is None:
-        print(USAGE)
-    elif len(args) != 2:
-        print(USAGE)
-        sys.exit(2)  # Invalid usage
-    filename, lookup_chain = args
+    filename, lookup_chain = parse_args(args)
 
     # gets the parsed data
     try:
