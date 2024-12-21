@@ -84,7 +84,7 @@ def parse_yaml(file: StringIO) -> Any:
     try:
         return yaml.safe_load(file)
     except yaml.YAMLError as e:
-        raise ParseError(f"Unable to parse YAML file: {str(e)}")
+        raise ParseError(f"[ERROR] {file.name}: Unable to parse YAML file: {str(e)}")
 
 def parse_json(file: StringIO) -> Any:
     """
@@ -100,7 +100,7 @@ def parse_json(file: StringIO) -> Any:
     try:
         return json.load(file)
     except json.JSONDecodeError as e:
-        raise ParseError(f"Unable to parse JSON file: {str(e)}")
+        raise ParseError(f"[ERROR] {file.name}: Unable to parse JSON file: {str(e)}")
 
 def parse_toml(file: StringIO) -> Any:
     """
@@ -116,7 +116,7 @@ def parse_toml(file: StringIO) -> Any:
     try:
         return toml.load(file)
     except toml.TomlDecodeError as e:
-        raise ParseError(f"Unable to parse TOML file: {str(e)}")
+        raise ParseError(f"[ERROR] {file.name}: Unable to parse TOML file: {str(e)}")
 
 FORMATS = [
     (['.json'], parse_json),
@@ -137,12 +137,12 @@ def todot(adict: dict, lookup_path: str) -> Any:
         The value at the specified nested key, or None if the key doesn't exist.
     """
     if adict is None:
-        raise KeyError(f"key '{bold(lookup_path.split('.')[0])}' not found in {italics('')}")
+        raise KeyError(f"[ERROR] key '{bold(lookup_path.split('.')[0])}' not found in {italics('')}")
     found_keys = []
     for key in lookup_path.split('.'):
         adict = adict.get(key)
         if adict is None:
-            raise KeyError(f"key '{key}' not found in {'.'.join(found_keys)}")
+            raise KeyError(f"[ERROR] key '{key}' not found in {'.'.join(found_keys)}")
         found_keys.append(key)
     return adict
 
@@ -164,15 +164,15 @@ def parse_file(filename: str) -> Dict[str, Any]:
             with open(filename, 'r') as file:
                 content = file.read().strip()
                 if not content:
-                    raise ValueError(f"File is empty: {filename}")
+                    raise ValueError(f"[ERROR] {filename}: File is empty")
                 return parser(StringIO(content))
         except FileNotFoundError:
-            raise FileNotFoundError(f"File not found: {filename}")
+            raise FileNotFoundError(f"[ERROR] {filename}: File not found")
         except ParseError as e:
-            raise ValueError(f"Unable to parse file '{filename}': {str(e)}")
+            raise ValueError(f"[ERROR] {filename}: {str(e)}")
         except Exception as e:
-            raise ValueError(f"Unable to parse file '{filename}': {str(e)}")
-    raise ValueError(f"Unsupported file format: {filename}. Supported formats: JSON, YAML, TOML, INI")
+            raise ValueError(f"[ERROR] {filename}: Unable to parse file: {str(e)}")
+    raise ValueError(f"[ERROR] {filename}: Unsupported file format. Supported formats: JSON, YAML, TOML, INI")
 
 def run(args: list[str] = None) -> None:
     """
@@ -201,7 +201,7 @@ def run(args: list[str] = None) -> None:
     try:
         print(todot(data, lookup))
     except KeyError as e:
-        print(f"{filename}: " + e.args[0].strip('"'))
+        print(f"[ERROR] {filename}: " + e.args[0].strip('"'))
         sys.exit(5)  # Key not found
 
 def main() -> None:
