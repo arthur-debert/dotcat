@@ -12,8 +12,6 @@ Example:
 
 import sys
 import os
-import toml
-import json
 from io import StringIO
 
 def italics(text):
@@ -40,12 +38,23 @@ def parse_ini(file):
     config.read_file(file)
     return {s: dict(config.items(s)) for s in config.sections()}
 
+def parse_yaml(file):
+    import yaml
+    return yaml.safe_load(file)
+
+def parse_json(file):
+    import json
+    return json.load(file)
+
+def parse_toml(file):
+    import toml
+    return toml.load(file)
+
 FORMATS = [
-    ('.json', json.load),
-    ('.yaml', lambda f: __import__('yaml').safe_load(f)),
-    ('.yml', lambda f: __import__('yaml').safe_load(f)),
-    ('.toml', toml.load),
-    ('.ini', parse_ini)
+    (['.json'], parse_json),
+    (['.yaml', '.yml'], parse_yaml),
+    (['.toml'], parse_toml),
+    (['.ini'], parse_ini)
 ]
 
 def todot(adict, lookup_path):
@@ -80,8 +89,8 @@ def parse_file(filename):
         The parsed content as a dictionary.
     """
     ext = os.path.splitext(filename)[1].lower()
-    parsers = [parser for fmt, parser in FORMATS if fmt == ext]
-    parsers += [parser for fmt, parser in FORMATS if fmt != ext]
+    parsers = [parser for fmts, parser in FORMATS if ext in fmts]
+    parsers += [parser for fmts, parser in FORMATS if ext not in fmts]
 
     for parser in parsers:
         try:
