@@ -48,7 +48,12 @@ publish() {
   fi
 
   # Publish the package
-  poetry publish --build --repository "${repository}" || exit
+  if [[ -d "dist" ]]; then
+    rm -rf dist
+  fi
+  poetry build || exit
+  twine upload --repository "$repository" dist/* || exit
+
 
   # Tagging logic
   if git rev-parse "v${version}" >/dev/null 2>&1; then
