@@ -21,6 +21,7 @@ urls = { "Homepage" = "https://github.com/arthur-debert/dotcat" }
 [tool.poetry.dependencies]
 python = ">=3.9"
 pyyaml = "^6.0.2"
+twine = "^6.0.1"
 
 [tool.poetry.group.dev.dependencies]
 toml = ">=0.10.2"
@@ -75,7 +76,7 @@ norecursedirs = ["template/py"]
 
 [tool.poetry]
 name = "dotcat"
-version = "0.0.5"
+version = "0.8.0"
 description = "Cat structured data in a shell, i.e. cat some.json user.name.first # echos Janet"
 authors = ["Arthur Debert <arthur@debert.xzy>"]
 readme = "README.md"

@@ -15,7 +15,7 @@ if [ -z "$PYPI_PROD_TOKEN" ]; then
 fi
 
 # Configure production PyPI repository and token
-poetry config repositories.pypi https://pypi.org/legacy/
+poetry config repositories.pypi https://pypi.org/simple/
 poetry config pypi-token.pypi "$PYPI_PROD_TOKEN"
 
 # Check if test token is provided and configure if it is
