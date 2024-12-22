@@ -26,6 +26,9 @@ from typing import Any, Dict, List, Tuple, Union
 
 ParsedData = Union[Dict[str, Any], List[Any]]
 
+LIST_ACCESS_SYMBOL = '@'
+SLICE_SYMBOL = ':'
+
 ######################################################################
 # Output formatting functions
 ######################################################################
@@ -245,6 +248,24 @@ def format_output(data: Any, output_format: str) -> str:
 ######################################################################
 
 
+def access_list(data: Any, key: str, index: str) -> Any:
+    """
+    Accesses a list within a dictionary using a key and an index or slice.
+
+    Args:
+        data: The dictionary containing the list.
+        key: The key for the list.
+        index: The index or slice to access.
+
+    Returns:
+        The accessed list item or slice.
+    """
+    if SLICE_SYMBOL in index:
+        start, end = map(lambda x: int(x) if x else None, index.split(SLICE_SYMBOL))
+        return data.get(key)[start:end]
+    else:
+        return data.get(key)[int(index)]
+
 def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
     """
     Accesses a nested dictionary value with an attribute chain encoded by a dot-separated string.
@@ -262,7 +283,11 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
             f"[ERROR] key '{bold({chain})}' not found in {italics('')}")
     found_keys = []
     for key in lookup_chain.split('.'):
-        data = data.get(key)
+        if LIST_ACCESS_SYMBOL in key:
+            key, index = key.split(LIST_ACCESS_SYMBOL)
+            data = access_list(data, key, index)
+        else:
+            data = data.get(key)
         if data is None:
             keys = '.'.join(found_keys)
             raise KeyError(f"[ERROR] key '{key}' not found in { keys}")

@@ -30,6 +30,25 @@ dotcat data.yaml occupation
 echo '{"items":[{"id":1}, {"id":2}]}' > array.json
 dotcat array.json items.1.id
 # Output: 2
+
+# List access examples
+echo '{"foo": {"bar": ["item1", "item2", "item3", "item4", "item5"]}}' > list.json
+
+# Get one item (zero based)
+dotcat list.json foo.bar@2
+# Output: item3
+
+# Get items from index 2 to 4
+dotcat list.json foo.bar@2:4
+# Output: ["item3", "item4"]
+
+# Get items from start to index 3
+dotcat list.json foo.bar@:3
+# Output: ["item1", "item2", "item3"]
+
+# Get items from index 3 to the end
+dotcat list.json foo.bar@3:-1
+# Output: ["item4", "item5"]
 ```
 
 ## Key Features
@@ -61,4 +80,4 @@ dotcat <file> <dot_separated_key> [--output <format>]
 
 ### Contributing
 
-Contributions are welcome! General 
+Contributions are welcome! General
