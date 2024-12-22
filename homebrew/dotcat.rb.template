@@ -1,0 +1,33 @@
+class Dotcat < Formula
+  desc "Catting Structured Data in Style"
+  homepage "Your Project Homepage URL" # Replace with your actual homepage
+  depends_on "python@3.9" # Or the specific Python version required
+  depends_on "poetry"
+
+  $checksum
+
+
+  def install
+    python_executable = which("python")
+
+    if python_executable.blank?
+      odie "Python is not installed." # Raise an error if Python isn't found
+    end
+
+    python_version = `#{python_executable} --version 2>&1`[/Python (\d+\.\d+)/, 1] # Extract version
+
+    if python_version.blank? || Version.new(python_version) < "3.9"
+      odie "Python 3.9 or newer is required." # Error if Python < 3.9
+    end
+
+    system "poetry", "env", "use", python_version
+    system "poetry", "install"
+  end
+
+  test do
+    # Add a simple test to verify the installation.
+    # For example, check if the executable exists.
+    assert_match "Usage: dotcat", shell_output("#{bin}/dotcat --help")
+  end
+end
+

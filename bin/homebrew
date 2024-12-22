@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+# this scripts uses poet to get the checksum
+checksum=$(poet dotcat | tr '\n' ' ')  # Escape newlines
+sed "s|\$checksum|$checksum|g" homebrew/dotcat.rb.template > homebrew/dotcat.rb
