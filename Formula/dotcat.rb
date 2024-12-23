@@ -6,8 +6,8 @@ class Dotcat < Formula
   desc "Cat structured data, in style"
   homepage "https://github.com/arthur-debert/dotcat"
 
-    url "https://files.pythonhosted.org/packages/9a/43/0a24b48418dd6259546f47b7d4cb9d93d4179723144b486c8461a8bf7ba8/dotcat-0.8.7.tar.gz"
-    sha256 "cf919f22444430b7e838239e9058b5a6c308466573856eca18f44cd07e4f9f34"
+    url "https://files.pythonhosted.org/packages/21/eb/fda9a7f89d70cbdd94dffd889f365a3aa4a757b1baf0b4f0284655d74676/dotcat-0.8.13.tar.gz"
+    sha256 "253baf4c91a9e6a13736f430b41538d7a9b0a5302e2e1af06a76ddbfac944e77"
 
   def install
     virtualenv_path = libexec / "venv"
