@@ -1,8 +1,0 @@
-class Dotcat < Formula
-  include Language::Python::Virtualenv  # <--- Add this line
-  depends_on "python@3.9"
-  depends_on "poetry"
-
-  desc "Cat structured data, in style"
-  homepage "https://github.com/arthur-debert/dotcat"
-

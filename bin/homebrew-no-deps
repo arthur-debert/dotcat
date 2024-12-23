@@ -2,6 +2,6 @@
 #this scripts uses poet to get the checksum
 
 poetry shell
-poet --single dotcat | sed '1d;$d' > dist/dotcat-formula-middle
-cat homebrew/dotcat-formula-top dist/dotcat-formula-middle homebrew/dotcat-formula-bottom > dist/dotcat.rb
+poet --single dotcat | sed '1d;$d' > homebrew/parts/dotcat-formula-middle
+cat homebrew/parts/dotcat-formula-top homebrew/parts/dotcat-formula-middle homebrew/parts/dotcat-formula-bottom > homebrew/dotcat.rb
 
