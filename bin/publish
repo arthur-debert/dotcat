@@ -41,6 +41,8 @@ bump_version_and_commit() {
 publish() {
   local version="$1"
   local repository="$2"
+  local libname
+  libname="$(poetry version | cut -d ' ' -f2)"
 
   # If version not provided via --version, get it from poetry
   if [ -z "$version" ]; then
@@ -52,6 +54,16 @@ publish() {
     rm -rf dist
   fi
   poetry build || exit
+  # this runs the brew formula generator:
+  ./bin/homebrew-no-deps
+  # now check if we need to commit the new homebrew formula
+  if git diff-index --quiet HEAD -- homebrew/dotcat.rb; then
+    echo "Homebrew formula is up to date."
+  else
+    git add homebrew/"${libname}".rb
+    git commit -m "Update homebrew formula for version ${version}"
+    git push
+  fi
   twine upload --repository "$repository" dist/* || exit
 
 
@@ -62,6 +74,10 @@ publish() {
 
   git tag "v$version" && echo "Tag v$version created."
   git push origin "v${version}" && echo "Tag v${version} pushed to origin."
+
+  # Create a GitHub release
+  gh release create "v${version}" --title "v${version}" --notes "Release version ${version}" || exit
+  echo "GitHub release v${version} created."
 }
 
 # Set default repository
