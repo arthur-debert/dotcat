@@ -77,7 +77,7 @@ norecursedirs = ["template/py"]
 
 [tool.poetry]
 name = "dotcat"
-version = "0.8.16"
+version = "0.8.17"
 description = "Cat structured data , in style"
 authors = ["Arthur Debert <arthur@debert.xzy>"]
 readme = "README.md"
