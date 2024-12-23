@@ -1,5 +1,8 @@
 name: Update Homebrew Formula
 
+permissions:
+  contents: write  # Grant write permissions to the GITHUB_TOKEN
+
 on:
   release:
     types: [created]
