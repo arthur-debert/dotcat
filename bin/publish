@@ -54,6 +54,7 @@ publish() {
     rm -rf dist
   fi
   poetry build || exit
+  twine upload --repository "$repository" dist/* || exit
   # this runs the brew formula generator:
   ./bin/homebrew-no-deps
   # now check if we need to commit the new homebrew formula
@@ -64,7 +65,6 @@ publish() {
     git commit -m "Update homebrew formula for version ${version}"
     git push
   fi
-  twine upload --repository "$repository" dist/* || exit
 
 
   # Tagging logic
