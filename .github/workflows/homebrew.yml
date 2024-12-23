@@ -33,7 +33,7 @@ jobs:
         run: git clone https://github.com/arthur-debert/homebrew-tools.git
 
       - name: Copy Homebrew Formula
-        run: cp homebrew/dotcat.rb homebrew-tools/Formula/dotcat.rb
+        run: cp Formula/dotcat.rb homebrew-tools/Formula/dotcat.rb
 
       - name: Commit and Push Changes
         working-directory: homebrew-tools
