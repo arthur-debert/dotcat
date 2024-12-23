@@ -28,14 +28,16 @@ check_git_clean() {
   fi
 }
 
-bump_version_and_commit() {
+bump_version() {
   poetry version patch || exit
   local new_version
   new_version=$(poetry version | cut -d ' ' -f2) || exit
   git add pyproject.toml
-  git commit -m "Bumped version number to ${new_version}" || exit
-  git push
   echo "$new_version"
+}
+
+get_poetry_version() {
+  poetry version | cut -d ' ' -f2
 }
 
 publish() {
@@ -57,15 +59,21 @@ publish() {
   twine upload --repository "$repository" dist/* || exit
   # this runs the brew formula generator:
   ./bin/homebrew-no-deps
-  # now check if we need to commit the new homebrew formula
-  if git diff-index --quiet HEAD -- homebrew/dotcat.rb; then
-    echo "Homebrew formula is up to date."
-  else
-    git add homebrew/"${libname}".rb
-    git commit -m "Update homebrew formula for version ${version}"
+
+  # Check if we need to commit the new homebrew formula or pyproject.toml
+  local commit_needed=false
+  if ! git diff-index --quiet HEAD -- pyproject.toml; then
+    git add pyproject.toml
+    commit_needed=true
+  fi
+  if ! git diff-index --quiet HEAD -- Formula/"${libname}".rb; then
+    git add Formula/"${libname}".rb
+    commit_needed=true
+  fi
+  if [ "$commit_needed" = true ]; then
+    git commit -m "Update version to ${version} and homebrew formula"
     git push
   fi
-
 
   # Tagging logic
   if git rev-parse "v${version}" >/dev/null 2>&1; then
@@ -74,7 +82,6 @@ publish() {
     git tag "v$version" && echo "Tag v$version created."
     git push origin "v${version}" && echo "Tag v${version} pushed to origin." || exit
   fi
-
 
   # Create a GitHub release
   gh release create "v${version}" --title "v${version}" --notes "Release version ${version}" || exit
@@ -110,8 +117,12 @@ done
 # Handle version bump
 if [ "$version" == "bump" ]; then
   check_git_clean
-  version=$(bump_version_and_commit)
-  echo "new version is $version"
+  bump_version
+fi
+
+# If version is still not set, get it from poetry
+if [ -z "$version" ]; then
+  version=$(get_poetry_version)
 fi
 
 # Call the publish function with the parsed arguments
