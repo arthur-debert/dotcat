@@ -42,7 +42,7 @@ publish() {
   local version="$1"
   local repository="$2"
   local libname
-  libname="$(poetry version | cut -d ' ' -f2)"
+  libname="$(poetry version | cut -d ' ' -f1)"
 
   # If version not provided via --version, get it from poetry
   if [ -z "$version" ]; then
