@@ -5,10 +5,8 @@
 
     "search.exclude": {
         "__pycache___": true,
-        ".venv": true,
         "dist": true,
-        "build": true
-    },
+        "build": true,
         ".venv": true
     },
     "findUnusedExports.detectCircularImports": true,
@@ -29,4 +27,4 @@
         "D001"
     ],
     "restructuredtext.linter.run": "onSave"
-}
+

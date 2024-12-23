@@ -542,6 +542,21 @@ files = [
 tests = ["asttokens (>=2.1.0)", "coverage", "coverage-enable-subprocess", "ipython", "littleutils", "pytest", "rich"]
 
 [[package]]
+name = "homebrew-pypi-poet"
+version = "0.10.0"
+description = "Writes Homebrew stanzas for pypi packages"
+optional = false
+python-versions = "*"
+files = [
+    {file = "homebrew-pypi-poet-0.10.0.tar.gz", hash = "sha256:e09e997e35a98f66445f9a39ccb33d6d93c5cd090302a59f231707eac0bf378e"},
+    {file = "homebrew_pypi_poet-0.10.0-py2.py3-none-any.whl", hash = "sha256:65824f97aea0e713c4ac18aa2ef4477aca69426554eac842eeaaddf97df3fc47"},
+]
+
+[package.dependencies]
+jinja2 = "*"
+setuptools = "*"
+
+[[package]]
 name = "idna"
 version = "3.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -1965,4 +1980,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9"
-content-hash = "7ead98003d9a1ed18cdfd35a1e5998c3aa78edaf0f515d0d83895d6e9bf24a6d"
+content-hash = "223437718409e4c22c25feef55501d2375a657b0e391444031112aa65dcde365"

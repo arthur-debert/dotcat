@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+#this scripts uses poet to get the checksum
+
+poetry shell
+poet --single dotcat | sed '1d;$d' > dist/dotcat-formula-middle
+cat homebrew/dotcat-formula-top dist/dotcat-formula-middle homebrew/dotcat-formula-bottom > dist/dotcat.rb
+

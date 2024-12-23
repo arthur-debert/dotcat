@@ -1,4 +1,5 @@
 #! /usr/bin/env bash
 # this scripts uses poet to get the checksum
-checksum=$(poet dotcat | tr '\n' ' ')  # Escape newlines
-sed "s|\$checksum|$checksum|g" homebrew/dotcat.rb.template > homebrew/dotcat.rb
+poet --resources dotcat > homebrew/dotcat-formula-middle
+cat homebrew/dotcat-formula-top homebrew/dotcat-formula-middle homebrew/dotcat-formula-bottom > dist/dotcat.rb
+
