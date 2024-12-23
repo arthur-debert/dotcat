@@ -37,9 +37,12 @@ jobs:
 
       - name: Commit and Push Changes
         working-directory: homebrew-tools
+        env:
+          GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}  # Use the PAT instead of GITHUB_TOKEN
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}@github.com/arthur-debert/homebrew-tools.git
           git add Formula/dotcat.rb
           git commit -m "chore(homebrew): Update dotcat formula to ${{ github.event.inputs.tag_name || github.event.release.tag_name }}"
           git push origin main
