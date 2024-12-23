@@ -32,8 +32,12 @@ jobs:
       - name: Clone Homebrew Tap Repository
         run: git clone https://github.com/arthur-debert/homebrew-tools.git
 
+      - name: Set Formula Path
+        id: vars
+        run: echo "FORMULA_PATH=Formula/dotcat.rb" >> $GITHUB_ENV
+
       - name: Copy Homebrew Formula
-        run: cp Formula/dotcat.rb homebrew-tools/Formula/dotcat.rb
+        run: cp ${{ env.FORMULA_PATH }} homebrew-tools/${{ env.FORMULA_PATH }}
 
       - name: Commit and Push Changes
         working-directory: homebrew-tools
@@ -43,7 +47,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}@github.com/arthur-debert/homebrew-tools.git
-          git add Formula/dotcat.rb
+          git add ${{ env.FORMULA_PATH }}
           git commit -m "chore(homebrew): Update dotcat formula to ${{ github.event.inputs.tag_name || github.event.release.tag_name }}"
           git push origin main
 
