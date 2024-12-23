@@ -21,9 +21,6 @@ jobs:
       # - name: Generate Homebrew Formula
       #   run: python generate_formula.py
 
-      - name: Copy Homebrew Formula
-        run: cp homebrew/dotcat.rb Formula/dotcat.rb
-
       - name: Create Pull Request to Homebrew Tap
         uses: peter-evans/create-pull-request@v5
         with:
