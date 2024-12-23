@@ -1,4 +1,4 @@
-# dotcat: Catting Structured Data in Style
+# dotcat: Cat Structured Data, in Style
 
 Dealing with structured data in shell scripts is all but impossible.
 `dotcat` gives you the ability to fetch structured data as easily as using cat it.
