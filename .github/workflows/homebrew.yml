@@ -3,6 +3,7 @@ name: Update Homebrew Formula
 on:
   release:
     types: [created]
+  workflow_dispatch: # Add this line to enable manual triggering
 
 jobs:
   update-brew-formula:
