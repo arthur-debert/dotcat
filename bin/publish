@@ -111,6 +111,7 @@ done
 if [ "$version" == "bump" ]; then
   check_git_clean
   version=$(bump_version_and_commit)
+  echo "new version is $version"
 fi
 
 # Call the publish function with the parsed arguments
