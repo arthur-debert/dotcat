@@ -30,7 +30,7 @@ jobs:
       #   run: python generate_formula.py
 
       - name: Clone Homebrew Tap Repository
-        run: git clone https://github.com/arthur-debert/homebrew-tools.git
+        run: git clone https://github.com/arthur-debert/homebrew-tools.git homebrew-tools
 
       - name: Set Formula Path
         id: vars
