@@ -118,6 +118,7 @@ done
 if [ "$version" == "bump" ]; then
   check_git_clean
   bump_version
+  version=$(get_poetry_version)
 fi
 
 # If version is still not set, get it from poetry
