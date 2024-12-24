@@ -26,10 +26,9 @@ jobs:
                 gh api -H "Accept: application/vnd.github.v3+json" /repos/${{ github.repository }}/actions/artifacts
 
             - name: Download Brew Formula
-              uses: actions/download-artifact@v4
-              with:
-                path: /tmp/Formula
-                run-id: ${{ github.event.workflow_run.id }}
+              run: |
+                curl -L -o /tmp/Formula.zip ${{ github.event.workflow_run.artifacts[0].archive_download_url }}
+                unzip /tmp/Formula.zip -d /tmp/Formula
 
             - name: Copy Homebrew Formula
               run: cp /tmp/Formula/dotcat.rb /tmp/homebrew-tools/Formula/dotcat.rb
