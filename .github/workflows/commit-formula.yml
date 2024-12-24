@@ -30,7 +30,7 @@ jobs:
               with:
                 name: brew-formula
                 path: /tmp/Formula
-                url: ${{ github.event.workflow_run.outputs.artifact-url }}
+                run-id: ${{ github.event.workflow_run.outputs.run-id }}
 
             - name: Copy Homebrew Formula
               run: cp /tmp/Formula/dotcat.rb /tmp/homebrew-tools/Formula/dotcat.rb
