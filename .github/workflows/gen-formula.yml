@@ -54,7 +54,7 @@ jobs:
                 PYTHON_PATH: ${{ env.PYTHON_PATH }}
               run: |
                 mkdir -p /tmp/Formula;
-                poetry use ${{ matrix.python-version }};
+                poetry env use ${{ matrix.python-version }};
                 ./bin/brew::update > /tmp/Formula/dotcat.rb
 
             - name: Upload Brew Formula
