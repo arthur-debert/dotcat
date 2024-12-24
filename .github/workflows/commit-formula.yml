@@ -18,6 +18,14 @@ jobs:
             - name: Clone Homebrew Tap Repository
               run: git clone https://github.com/arthur-debert/homebrew-tools.git /tmp/homebrew-tools
 
+            - name: Wait for artifact to be available
+              run: sleep 30
+
+            - name: List available artifacts
+              run: |
+                echo "Listing available artifacts:"
+                gh api -H "Accept: application/vnd.github.v3+json" /repos/${{ github.repository }}/actions/artifacts
+
             - name: Download Brew Formula
               uses: actions/download-artifact@v3
               with:
