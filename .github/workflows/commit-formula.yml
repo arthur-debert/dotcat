@@ -27,6 +27,8 @@ jobs:
                   exit 1
                 fi
                 curl -L -o /tmp/Formula.zip $archive_url
+                file /tmp/Formula.zip  # Inspect the downloaded file
+                cat /tmp/Formula.zip  # Output the contents of the file for inspection
                 if ! unzip /tmp/Formula.zip -d /tmp/Formula; then
                   echo "Error: Failed to unzip /tmp/Formula.zip"
                   exit 1
