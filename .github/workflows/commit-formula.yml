@@ -22,7 +22,10 @@ jobs:
               uses: actions/download-artifact@v3
               with:
                 name: brew-formula
-                path: /tmp/dotcat.rb
+                path: /tmp/Formula
+
+            - name: Copy Homebrew Formula
+              run: cp /tmp/Formula/dotcat.rb /tmp/homebrew-tools/Formula/dotcat.rb
 
             - name: Commit and Push Changes
               working-directory: /tmp/homebrew-tools

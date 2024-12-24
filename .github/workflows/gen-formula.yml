@@ -49,10 +49,11 @@ jobs:
               env:
                 PYTHON_PATH: ${{ env.PYTHON_PATH }}
               run: |
-                  ./bin/brew::update > /tmp/dotcat.rb
+                mkdir -p /tmp/Formula;
+                ./bin/brew::update > /tmp/Formula/dotcat.rb
 
             - name: Upload Brew Formula
               uses: actions/upload-artifact@v3
               with:
                 name: brew-formula
-                path: /tmp/dotcat.rb
+                path: /tmp/Formula
