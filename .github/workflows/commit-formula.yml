@@ -19,7 +19,7 @@ jobs:
               run: git clone https://github.com/arthur-debert/homebrew-tools.git /tmp/homebrew-tools
 
             - name: Output workflow_run details
-              run: echo "${{ toJson(github.event.workflow_run) }}"
+              run: echo "${{ toJson(github.event) }}"
 
 
             - name: Download Brew Formula

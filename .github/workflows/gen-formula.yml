@@ -66,5 +66,5 @@ jobs:
             - name: Set artifact URL output
               id: set-artifact-url
               run: |
-                echo '::set-output name=artifact-url::${{ steps.upload.outputs.artifact-url }}'
+                echo "artifact-url=${{ steps.upload.outputs.artifact-url }}" >> $GITHUB_ENV
                 echo "run-id=${{ github.run_id }}" >> $GITHUB_ENV
