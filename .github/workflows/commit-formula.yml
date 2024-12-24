@@ -18,8 +18,7 @@ jobs:
             - name: Download Brew Formula
               uses: actions/download-artifact@v4
               with:
-                run-id: ${{ github.event.workflow_run.id }}
-                path: /tmp
+                name: brew-formula
 
             - name: Clone Homebrew Tap Repository
               run: git clone https://github.com/arthur-debert/homebrew-tools.git /tmp/homebrew-tools
