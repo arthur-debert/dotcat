@@ -38,6 +38,7 @@ jobs:
             - name: Install dependencies
               run: |
                   poetry install --with dev,docs
+                  which poet
 
             - name: Set PYTHONPATH
               run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
@@ -54,12 +55,14 @@ jobs:
                 PYTHON_PATH: ${{ env.PYTHON_PATH }}
               run: |
                 mkdir -p /tmp/Formula;
-                ./bin/brew::update > /tmp/Formula/dotcat.rb
+                poetry use ${{ matrix.python-version }};
+                py=$(poetry env info -e")
+                ./bin/brew::update $py > /tmp/Formula/dotcat.rb
 
             - name: Upload Brew Formula
-              id: upload
               uses: actions/upload-artifact@v4
               with:
+                if-no-files-found: error
                 name: brew-formula
                 path: /tmp/Formula
 
