@@ -37,8 +37,7 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  poetry install --with dev,docs
-                  which poet
+                  poetry install -vvv --with dev,docs
 
             - name: Set PYTHONPATH
               run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
