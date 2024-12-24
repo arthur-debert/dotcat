@@ -39,6 +39,13 @@ jobs:
             - name: Set PYTHONPATH
               run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
 
+            - name: Get poetry env
+              run: poetry env info
+
+            - name: Get Poetry Python Path
+              id: python-path
+              run: echo "PYTHON_PATH=$(poetry env info -p)/bin/python" >> $GITHUB_ENV
+
             - name: Clone Homebrew Tap Repository
               run: git clone https://github.com/arthur-debert/homebrew-tools.git /tmp/homebrew-tools
 
@@ -47,6 +54,8 @@ jobs:
               run: echo "FORMULA_PATH=Formula/dotcat.rb" >> $GITHUB_ENV
 
             - name: Generate Brew Formula
+              env:
+                PYTHON_PATH: ${{ env.PYTHON_PATH }}
               run: |
                   ./bin/brew::update > /tmp/homebrew-tools/Formula/dotcat.rb
 
