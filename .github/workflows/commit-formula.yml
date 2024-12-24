@@ -21,6 +21,9 @@ jobs:
             - name: Output workflow_run details
               run: echo "${{ toJson(github.event.workflow_run) }}"
 
+            - name: Output artifact-url
+              run: echo "Artifact URL: ${{ github.event.workflow_run.artifact-url }}"
+
             - name: Download Brew Formula
               run: |
                 curl -L -o /tmp/Formula.zip ${{ github.event.workflow_run.outputs['gen-formula'].artifact-url }}
