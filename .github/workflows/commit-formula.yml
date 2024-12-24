@@ -24,7 +24,9 @@ jobs:
 
             - name: Download Brew Formula
               run: |
-                curl -L -o /tmp/Formula.zip ${{ github.event.workflow_run.outputs['gen-formula'].artifact-url }}
+                curl -L -o /tmp/artifacts.json ${{ github.event.workflow_run.artifacts_url }}
+                archive_url=$(jq -r '.artifacts[0].archive_download_url' /tmp/artifacts.json)
+                curl -L -o /tmp/Formula.zip $archive_url
                 unzip /tmp/Formula.zip -d /tmp/Formula
 
             - name: Copy Homebrew Formula
