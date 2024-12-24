@@ -53,7 +53,7 @@ jobs:
                 ./bin/brew::update > /tmp/Formula/dotcat.rb
 
             - name: Upload Brew Formula
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                 name: brew-formula
                 path: /tmp/Formula
