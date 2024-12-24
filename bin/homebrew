@@ -1,5 +1,0 @@
-#! /usr/bin/env bash
-# this scripts uses poet to get the checksum
-poet --resources dotcat > homebrew/dotcat-formula-middle
-cat homebrew/dotcat-formula-top homebrew/dotcat-formula-middle homebrew/dotcat-formula-bottom > dist/dotcat.rb
-
