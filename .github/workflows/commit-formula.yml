@@ -16,14 +16,19 @@ jobs:
               uses: actions/checkout@v2
 
             - name: List Artifacts
+              id: list-artifacts
               run: |
                 curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                 -H "Accept: application/vnd.github.v3+json" \
-                https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts
+                https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts > artifacts.json
+
+            - name: Extract Artifact URL
+              id: extract-url
+              run: echo "::set-output name=artifact-url::$(jq -r '.artifacts[0].archive_download_url' artifacts.json)"
 
             - name: Download with curl
               run: |
-                curl -LJO ${{ github.event.workflow_run.outputs.artifact-url }}
+                curl -LJO ${{ steps.extract-url.outputs.artifact-url }}
 
             - name: Download Brew Formula
               uses: actions/download-artifact@v4
