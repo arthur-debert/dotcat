@@ -1,0 +1,36 @@
+name: Commit Homebrew Formula
+
+on:
+  workflow_run:
+    workflows: ["Generate Homebrew Formula"]
+    types:
+      - completed
+
+jobs:
+    commit-formula:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Clone Homebrew Tap Repository
+              run: git clone https://github.com/arthur-debert/homebrew-tools.git /tmp/homebrew-tools
+
+            - name: Download Brew Formula
+              uses: actions/download-artifact@v2
+              with:
+                name: brew-formula
+                path: /tmp/homebrew-tools/Formula
+
+            - name: Commit and Push Changes
+              working-directory: /tmp/homebrew-tools
+              env:
+                GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}  # Use the PAT instead of GITHUB_TOKEN
+              run: |
+                git config user.name "github-actions[bot]"
+                git config user.email "github-actions[bot]@users.noreply.github.com"
+                git remote set-url origin https://x-access-token:${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}@github.com/arthur-debert/homebrew-tools.git
+                git add Formula/dotcat.rb
+                git commit -m "chore(homebrew): Update dotcat formula to ${{ github.event.inputs.tag_name || github.event.release.tag_name }}"
+                git push origin main
