@@ -4,6 +4,7 @@
 prefix="bin/templates/formula"
 checksum_path="dist/formula-middle"
 mkdir -p "dist"
-poet --single dotcat | sed '1d;$d' | sed 's/^    /  /' > ${checksum_path}
+# if there is no poet :
+"$(poetry env info -p)"/bin/poet --single dotcat | sed '1d;$d' | sed 's/^    /  /' > ${checksum_path}
 cat ${prefix}-top ${checksum_path} ${prefix}-bottom
 
