@@ -68,4 +68,4 @@ jobs:
               id: set-artifact-url
               run: |
                 echo "artifact-url=${{ steps.upload.outputs.artifact-url }}" >> $GITHUB_ENV
-                echo "run-id=${{ github.run_id }}" >> $GITHUB_ENV
+
