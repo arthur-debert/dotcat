@@ -18,7 +18,7 @@ jobs:
                 python-version: [3.9]
 
         outputs:
-            artifact-url: ${{ steps.upload.outputs.artifact-url }}
+            artifact-url: ${{ steps.set-artifact-url.outputs.artifact-url }}
             run-id: ${{ github.run_id }}
 
         steps:
@@ -64,5 +64,7 @@ jobs:
                 path: /tmp/Formula
 
             - name: Set artifact URL output
+              id: set-artifact-url
               run: |
+                echo "::set-output name=artifact-url::${{ steps.upload.outputs.artifact-url }}"
                 echo "run-id=${{ github.run_id }}" >> $GITHUB_ENV
