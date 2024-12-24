@@ -18,7 +18,7 @@ jobs:
               run: git clone https://github.com/arthur-debert/homebrew-tools.git /tmp/homebrew-tools
 
             - name: Download Brew Formula
-              uses: actions/download-artifact@v2
+              uses: actions/download-artifact@v3
               with:
                 name: brew-formula
                 path: /tmp/homebrew-tools/Formula
