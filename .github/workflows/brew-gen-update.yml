@@ -48,7 +48,6 @@ jobs:
 
             - name: Generate Brew Formula
               run: |
-                  poetry shell
                   ./bin/brew::update > /tmp/homebrew-tools/Formula/dotcat.rb
 
             - name: Copy Homebrew Formula
