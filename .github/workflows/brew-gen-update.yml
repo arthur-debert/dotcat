@@ -46,6 +46,9 @@ jobs:
               id: python-path
               run: echo "PYTHON_PATH=$(poetry env info -p)/bin/python" >> $GITHUB_ENV
 
+            - name: Set poetry env
+              run: poetry env use ${{ matrix.python-version }}
+
             - name: Clone Homebrew Tap Repository
               run: git clone https://github.com/arthur-debert/homebrew-tools.git /tmp/homebrew-tools
 
