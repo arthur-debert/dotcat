@@ -1,0 +1,4 @@
+class Dotcat < Formula
+  include Language::Python::Virtualenv
+  desc "Cat structured data, in style"
+  homepage "https://github.com/arthur-debert/dotcat"

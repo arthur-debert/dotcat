@@ -1,7 +1,9 @@
 #! /usr/bin/env bash
 #this scripts uses poet to get the checksum
 
+prefix="bin/templates/dotcat-formula"
+checksum_path="dist/dotcat-formula-middle"
 mkdir -p "dist"
-poet --single dotcat | sed '1d;$d' > dist/dotcat-formula-middle
-cat bin/parts/dotcat-formula-top dist/dotcat-formula-middle bin/parts/dotcat-formula-bottom > Formula/dotcat.rb
+poet --single dotcat | sed '1d;$d' | sed 's/^    /  /' > ${checksum_path}
+cat ${prefix}-top ${checksum_path} ${prefix}-bottom > Formula/dotcat.rb
 
