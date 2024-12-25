@@ -41,7 +41,7 @@ runs:
     - name: Set virtual environment path
       id: venv-path
       shell: bash
-      run: echo "venv-path=$(poetry env info -p)" >> $GITHUB_OUTPUT
+      run: poetry run poetry env info -p
 
     - name: Cache virtual environment
       id: cache-venv
