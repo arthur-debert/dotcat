@@ -44,6 +44,7 @@ runs:
       shell: bash
       run: |
         echo "venv-path=$(poetry env info -p)" >> "$GITHUB_OUTPUT"
+        echo "venv-activate=$(poetry env info -p)/bin/activate" >> "$GITHUB_OUTPUT"
 
     - name: Cache virtual environment
       id: cache-venv
@@ -73,4 +74,4 @@ runs:
     - name: Poetry activate environment
       shell: bash
       run: |
-        source "$VENV"
+        source ${{ steps.venv-path.outputs.venv-activate }}
