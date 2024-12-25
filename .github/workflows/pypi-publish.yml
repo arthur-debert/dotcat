@@ -28,8 +28,23 @@ jobs:
         run: |
           poetry version ${{ github.event.inputs.release_version }}
 
+      - name: Check if version needs to be committed
+        id: check_version
+        shell: bash
+        run: |
+          current_version=$(poetry version -s)
+          release_version=${{ github.event.inputs.release_version }}
+          if [ "$current_version" != "$release_version" ]; then
+            echo "version_changed=true"
+          else
+            echo "version_changed=false"
+          fi
+
       - name: Commit version
         shell: bash
+        if: env.version_changed == 'true'
+        env:
+          version_changed: ${{ steps.check_version.outputs.version_changed }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
