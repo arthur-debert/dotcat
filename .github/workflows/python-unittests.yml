@@ -1,11 +1,15 @@
 name: Run Tests
 
+
 on: [push, pull_request]
 
 jobs:
   python-unittests:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Setup Python environment
         uses: ./.github/actions/setup-python-poetry
         with:
