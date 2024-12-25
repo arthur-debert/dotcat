@@ -73,4 +73,4 @@ runs:
     - name: Poetry activate environment
       shell: bash
       run: |
-        source "$(poetry env info -p)/bin/activate"
+        source .venv/bin/activate"
