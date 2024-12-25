@@ -30,11 +30,8 @@ jobs:
               run: |
                 curl -LJO ${{ steps.extract-url.outputs.artifact-url }}
 
-            - name: Download Brew Formula
-              uses: actions/download-artifact@v4
-              with:
-                name: brew-formula
-                run-id: ${{ github.event.workflow_run.id }}
+            - name: Unzip Artifact
+              run: unzip *.zip -d /tmp
 
             - name: Clone Homebrew Tap Repository
               run: git clone https://github.com/arthur-debert/homebrew-tools.git /tmp/homebrew-tools
