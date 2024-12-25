@@ -30,6 +30,9 @@ jobs:
               run: |
                 curl -LJO ${{ steps.extract-url.outputs.artifact-url }}
 
+            - name: Inspect Downloaded File
+              run: file $(ls -1 | head -n 1)
+
             - name: Unzip Artifact
               run: unzip *.zip -d /tmp
 
