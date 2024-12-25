@@ -42,7 +42,7 @@ runs:
       id: venv-path
       shell: bash
       run: |
-        echo "venv-path=$(poetry env info -p)" >> $GITHUB_OUTPUT
+        echo "venv-path=$(poetry env info -p)" >> "$GITHUB_OUTPUT"
 
     - name: Cache virtual environment
       id: cache-venv
