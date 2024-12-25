@@ -64,3 +64,8 @@ runs:
       shell: bash
       run: |
         poetry check
+
+    - name: Poetry activate environment
+      shell: bash
+      run: |
+        source "$(poetry env info -p)/bin/activate"
