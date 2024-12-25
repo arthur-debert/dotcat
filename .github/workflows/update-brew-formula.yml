@@ -18,63 +18,32 @@ jobs:
                 python-version: [3.9]
 
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v2
+        - name: Checkout code
+          uses: actions/checkout@v3
 
-            - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v2
-              with:
-                  python-version: ${{ matrix.python-version }}
+        - name: Setup Python environment
+          uses: ./.github/actions/setup-python-poetry # Reference your composite action
+          with:
+            python-version: '3.9' # Specify the Python version you want to use
+            cache-key-prefix: 'test-env'
 
-            - name: Install Poetry
-              run: |
-                  curl -sSL https://install.python-poetry.org | python3 -
-                  export PATH="$HOME/.local/bin:$PATH"
+        - name: Clone Homebrew Tap Repository
+          run: git clone https://github.com/arthur-debert/homebrew-tools.git /tmp/homebrew-tools
 
-            - name: Install dependencies
-              run: |
-                  poetry install -v --with dev,docs
+        - name: Generate Brew Formula
+          env:
+            PYTHON_PATH: ${{ env.PYTHON_PATH }}
+          run: |
+            ./bin/brew::update > /tmp/homebrew-tools/Formula/dotcat.rb
 
-            - name: Set PYTHONPATH
-              run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
-
-            - name: Get Poetry Python Path
-              id: python-path
-              run: echo "PYTHON_PATH=$(poetry env info -p)/bin/python" >> $GITHUB_ENV
-
-            - name: Set poetry env
-              run: poetry env use ${{ matrix.python-version }}
-
-            - name: Generate Brew Formula
-              env:
-                PYTHON_PATH: ${{ env.PYTHON_PATH }}
-              run: |
-                mkdir -p /tmp/Formula;
-                poetry env use ${{ matrix.python-version }};
-                ./bin/brew::update > /tmp/Formula/dotcat.rb
-
-            - name: Upload Brew Formula
-              uses: actions/upload-artifact@v4
-              with:
-                if-no-files-found: error
-                name: brew-formula
-                path: /tmp/Formula
-
-
-            - name: Clone Homebrew Tap Repository
-              run: git clone https://github.com/arthur-debert/homebrew-tools.git /tmp/homebrew-tools
-
-            - name: Copy Homebrew Formula
-              run: cp /tmp/Formula/dotcat.rb /tmp/homebrew-tools/Formula/dotcat.rb
-
-            - name: Commit and Push Changes
-              working-directory: /tmp/homebrew-tools
-              env:
-                GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}  # Use the PAT instead of GITHUB_TOKEN
-              run: |
-                git config user.name "github-actions[bot]"
-                git config user.email "github-actions[bot]@users.noreply.github.com"
-                git remote set-url origin https://x-access-token:${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}@github.com/arthur-debert/homebrew-tools.git
-                git add Formula/dotcat.rb
-                git commit -m "chore(homebrew): Update dotcat formula to ${{ github.event.inputs.tag_name || github.event.release.tag_name }}"
-                git push origin main
+        - name: Commit and Push Changes
+          working-directory: /tmp/homebrew-tools
+          env:
+            GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}  # Use the PAT instead of GITHUB_TOKEN
+          run: |
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git remote set-url origin https://x-access-token:${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}@github.com/arthur-debert/homebrew-tools.git
+            git add Formula/dotcat.rb
+            git commit -m "chore(homebrew): Update dotcat formula to ${{ github.event.inputs.tag_name || github.event.release.tag_name }}"
+            git push origin main

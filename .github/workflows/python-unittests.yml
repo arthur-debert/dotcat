@@ -3,7 +3,7 @@ name: Run Tests
 on: [push, pull_request]
 
 jobs:
-  test:
+  python-unittests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
