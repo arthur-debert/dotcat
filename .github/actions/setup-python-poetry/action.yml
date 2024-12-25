@@ -1,5 +1,5 @@
 name: Setup Python with Poetry
-description: Sets up Python, installs Poetry, creates a virtual environment, and installs dependencies.
+
 inputs:
   python-version:
     description: 'The Python version to use'
@@ -22,7 +22,7 @@ runs:
       uses: actions/checkout@v2
 
     - name: Cache Poetry tool
-      id: cache-poetry # Add ID to get cache-hit output
+      id: cache-poetry
       uses: actions/cache@v3
       with:
         path: ${{ runner.tool_cache }}/poetry
@@ -30,11 +30,12 @@ runs:
         restore-keys: |
           ${{ inputs.cache-key-prefix }}-${{ runner.os }}-poetry-
 
+
     - name: Install Poetry
-      if: steps.cache-poetry.outputs.cache-hit != 'true' # Use the correct cache-hit output
+      if: steps.cache-poetry.outputs.cache-hit != 'true'
       uses: snok/install-poetry@v1
       with:
-        virtualenvs-create: true
+        virtualenvs-create: false
         virtualenvs-in-project: true
         installer-parallel: true
 
@@ -59,9 +60,11 @@ runs:
       run: |
           poetry install --no-interaction --no-root --with dev
 
+    # This should always run to install the project in the venv
     - name: Install project
       shell: bash
       run: poetry install --no-interaction
+
 
     - name: Sanity check
       shell: bash
