@@ -27,7 +27,7 @@ runs:
         installer-parallel: true
 
     - name: Checkout repository
-      uses: actions/checkout@vk2
+      uses: actions/checkout@v2
 
     - name: Set Cache Variables
       id: cache-vars
@@ -55,6 +55,10 @@ runs:
       shell: bash
       run: |
         poetry install --no-interaction --no-root
+
+    - name: Install project
+      shell: bash
+      run: poetry install --no-interaction
 
     - name: sanity check
       shell: bash
