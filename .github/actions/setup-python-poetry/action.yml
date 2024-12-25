@@ -72,7 +72,3 @@ runs:
       shell: bash
       run: poetry check
 
-    - name: Poetry activate environment
-      shell: bash
-      run: |
-        source ${{ steps.venv-path.outputs.venv-activate }}
