@@ -54,6 +54,7 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |
+        poetry use ${{ inputs.python-version }}
         poetry install --no-interaction --no-root --with dev
 
     - name: Install project
