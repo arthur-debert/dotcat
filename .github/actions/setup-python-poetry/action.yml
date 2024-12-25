@@ -41,13 +41,14 @@ runs:
     - name: Set virtual environment path
       id: venv-path
       shell: bash
-      run: poetry env info -p
+      run: |
+        echo "venv-path=$(poetry env info -p)" >> $GITHUB_ENV
 
     - name: Cache virtual environment
       id: cache-venv
       uses: actions/cache@v3
       with:
-        path: ${{ steps.venv-path.outputs.venv-path }}
+        path: ${{ env.venv-path }}
         key: ${{ inputs.cache-key-prefix }}-${{ runner.os }}-venv-${{ inputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
           ${{ inputs.cache-key-prefix }}-${{ runner.os }}-venv-${{ inputs.python-version }}-
