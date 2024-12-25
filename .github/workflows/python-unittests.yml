@@ -1,5 +1,6 @@
 name: Run Tests
 
+
 on: [push, pull_request]
 
 jobs:
@@ -10,9 +11,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Python environment
-        uses: ./.github/actions/setup-python-poetry # Reference your composite action
+        uses: ./.github/actions/setup-python-poetry
         with:
-          python-version: '3.9' # Specify the Python version you want to use
+          python-version: '3.9'
           cache-key-prefix: 'test-env'
 
       - name: Run tests
