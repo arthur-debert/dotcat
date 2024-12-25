@@ -21,7 +21,6 @@ urls = { "Homepage" = "https://github.com/arthur-debert/dotcat" }
 [tool.poetry.dependencies]
 python = ">=3.9"
 pyyaml = "^6.0.2"
-twine = "^6.0.1"
 homebrew-pypi-poet = "^0.10.0"
 
 [tool.poetry.group.dev.dependencies]
