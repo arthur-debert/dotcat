@@ -17,10 +17,6 @@ jobs:
             matrix:
                 python-version: [3.9]
 
-        outputs:
-            artifact-url: ${{ steps.set-artifact-url.outputs.artifact-url }}
-            run-id: ${{ github.run_id }}
-
         steps:
             - name: Checkout repository
               uses: actions/checkout@v2

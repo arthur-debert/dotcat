@@ -1,0 +1,62 @@
+# .github/actions/setup-python-poetry/action.yml
+name: Setup Python with Poetry
+description: Sets up Python, installs Poetry, creates a virtual environment, and installs dependencies.
+inputs:
+  python-version:
+    description: 'The Python version to use'
+    required: false
+    default: '3.x'  # Or a specific version like '3.9'
+  cache-key-prefix:
+    description: 'An optional prefix for the cache key'
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+
+    - name: Checkout repository
+      uses: actions/checkout@vk2
+
+    - name: Set Cache Variables
+      id: cache-vars
+      shell: bash
+      run: |
+          echo "cache-venv-key=${{ inputs.cache-key-prefix }}-${{ runner.os }}-venv-${{ inputs.python-version }}-${{ hashFiles('**/poetry.lock') }}" >> "$GITHUB_OUTPUT"
+          echo "cache-venv-path=$(poetry env info -p)" >> "$GITHUB_OUTPUT"
+
+
+    - name: Cache virtual environment
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.cache-vars.outputs.cache-venv-path }}
+        key: ${{ steps.cache-vars.outputs.cache-venv-key }}
+        restore-keys: |
+          ${{ inputs.cache-key-prefix }}-${{ runner.os }}-venv-${{ inputs.python-version }}-
+
+    - name: Load cached virtual environment (if any)
+      if: steps.cache-venv.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+          echo "Virtual environment not found in cache. Installing dependencies..."
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        poetry install --no-interaction --no-root
+
+    - name: sanity check
+      shell: bash
+      run: |
+        poetry check

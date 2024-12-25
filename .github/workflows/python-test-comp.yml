@@ -1,0 +1,21 @@
+name: Run Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python environment
+        uses: ./.github/actions/setup-python-poetry # Reference your composite action
+        with:
+          python-version: '3.9' # Specify the Python version you want to use
+          cache-key-prefix: 'test-env'
+
+      - name: Run tests
+        run: |
+          source $(poetry env info -p)/bin/activate
+          poetry run pytest
