@@ -10,40 +10,49 @@ on:
         required: true
 
 jobs:
-    update-formula:
-        runs-on: ubuntu-latest
+  update-formula:
+    runs-on: ubuntu-latest
 
-        strategy:
-            matrix:
-                python-version: [3.9]
+    strategy:
+      matrix:
+        python-version: [3.9]
 
-        steps:
-        - name: Checkout code
-          uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-        - name: Setup Python environment
-          uses: ./.github/actions/setup-python-poetry # Reference your composite action
-          with:
-            python-version: '3.9' # Specify the Python version you want to use
-            cache-key-prefix: 'test-env'
+      - name: Setup Python environment
+        uses: ./.github/actions/setup-python-poetry
+        with:
+          python-version: '3.9'
+          cache-key-prefix: 'test-env'
 
-        - name: Clone Homebrew Tap Repository
-          run: git clone https://github.com/arthur-debert/homebrew-tools.git /tmp/homebrew-tools
+      - name: Set TAP_REPOSITORY variable
+        id: set-tap-repository
+        run: |
+          echo "TAP_REPOSITORY=$GITHUB_REPOSITORY_OWNER/homebrew-tools" >> $GITHUB_ENV
 
-        - name: Generate Brew Formula
-          env:
-            PYTHON_PATH: ${{ env.PYTHON_PATH }}
-          run: |
-            ./bin/brew::update > /tmp/homebrew-tools/Formula/dotcat.rb
+      - name: Clone Homebrew Tap Repository
+        env:
+          TAP_REPOSITORY: ${{ env.TAP_REPOSITORY }}
+        run: git clone https://github.com/${{ env.TAP_REPOSITORY }} /tmp/tap
 
-        - name: Commit and Push Changes
-          working-directory: /tmp/homebrew-tools
-          env:
-            GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}  # Use the PAT instead of GITHUB_TOKEN
-          run: |
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git remote set-url origin https://x-access-token:${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}@github.com/arthur-debert/homebrew-tools.git
-            git add Formula/dotcat.rb
-            git commit -m "chore(homebrew): Update dotcat formula to ${{ github.event.inputs.tag_name || github.event.release.tag_name }}"
-            git push origin main
+      - name: Generate Brew Formula
+        env:
+          PYTHON_PATH: ${{ env.PYTHON_PATH }}
+          TAP_REPOSITORY: ${{ env.TAP_REPOSITORY }}
+        run: |
+         ./bin/brew::update > /tmp/tap/Formula/${{ github.repository }}.rb
+
+      - name: Commit and Push Changes
+        working-directory: /tmp/tap
+        env:
+          GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
+          TAP_REPOSITORY: ${{ env.TAP_REPOSITORY }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}@github.com/${{ env.TAP_REPOSITORY }}
+          git add Formula/${{ github.repository }}.rb
+          git commit -m "chore(homebrew): Update ${{ github.repository }} formula to ${{ github.event.inputs.tag_name || github.event.release.tag_name }}"
+          git push origin main
