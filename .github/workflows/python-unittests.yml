@@ -24,6 +24,7 @@ jobs:
           REPO_NAME: ${{ env.REPO_NAME }}
         run: |
           poetry run pytest --cov-branch --cov-report=xml --cov=${{ env.REPO_NAME }}
+          ls -lah
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
