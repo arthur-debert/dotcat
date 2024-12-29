@@ -42,7 +42,7 @@ jobs:
           PYTHON_PATH: ${{ env.PYTHON_PATH }}
           TAP_REPOSITORY: ${{ env.TAP_REPOSITORY }}
         run: |
-         ./bin/brew::update > /tmp/tap/Formula/${{ github.repository }}.rb
+         ./bin/brew::update > /tmp/tap/Formula/$(basename ${{ github.repository }}).rb
 
       - name: Commit and Push Changes
         working-directory: /tmp/tap
