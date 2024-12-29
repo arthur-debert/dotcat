@@ -299,30 +299,28 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
 ######################################################################
 
 
-def parse_args(args: List[str]) -> Tuple[str, str, str]:
+def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
     """
-    Returns the filename, lookup chain, and output format.
+    Returns the filename, lookup chain, output format, and check_install flag.
 
     Args:
         args: The list of command-line arguments.
 
     Returns:
-        The filename, lookup chain, and output format.
+        The filename, lookup chain, output format, and check_install flag.
     """
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('file', type=str, help='The file to read from')
-    parser.add_argument('dot_separated_key', type=str,
-                        help='The dot-separated key to look up')
-    parser.add_argument('--output', type=str, default='raw',
-                        help='The output format (raw, formatted, json, yaml, toml, ini)')
+    parser.add_argument('file', type=str, nargs='?', help='The file to read from')
+    parser.add_argument('dot_separated_key', type=str, nargs='?', help='The dot-separated key to look up')
+    parser.add_argument('--output', type=str, default='raw', help='The output format (raw, formatted, json, yaml, toml, ini)')
+    parser.add_argument('--check-install', action='store_true', help='Check if required packages are installed')
 
-    if args is None or len(args) < 2:
+    if args is None or len(args) < 1:
         print(USAGE)
         sys.exit(2)
 
     parsed_args = parser.parse_args(args)
-    return parsed_args.file, parsed_args.dot_separated_key, parsed_args.output
-
+    return parsed_args.file, parsed_args.dot_separated_key, parsed_args.output, parsed_args.check_install
 
 def run(args: List[str] = None) -> None:
     """
@@ -332,7 +330,11 @@ def run(args: List[str] = None) -> None:
         args: The list of command-line arguments.
     """
     # validates arguments
-    filename, lookup_chain, output_format = parse_args(args)
+    filename, lookup_chain, output_format, check_install_flag = parse_args(args)
+
+    if check_install_flag:
+        check_install()
+        return
 
     # gets the parsed data
     try:
@@ -359,6 +361,10 @@ def main() -> None:
     """
     run(sys.argv[1:])
 
+def check_install():
+    import json, yaml, toml
+    print("Dotcat is good to go.")
+    return
 
 if __name__ == '__main__':
     main()

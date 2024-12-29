@@ -22,6 +22,6 @@
   end
 
   test do
-    assert_match "Usage: dotcat", shell_output("#{bin}/dotcat --help")
+    assert_match "Dotcat is good to go.", shell_output("#{bin}/dotcat --check-install")
   end
 end
