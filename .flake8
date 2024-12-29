@@ -1,0 +1,12 @@
+[flake8]
+per-file-ignores =
+    __init__.py: F401
+    conftest.py: F401
+max-line-length = 88
+multi-line=3
+force-grid-wrap=0
+trailing-comma=true
+use-parentheses=true
+remove-unused-imports=true
+remove-unused-variables=true
+ignore = E203, E503, E704, W503

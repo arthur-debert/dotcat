@@ -1,0 +1,44 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: check-added-large-files
+    -   id: check-json
+-   repo: https://github.com/pre-commit/mirrors-autopep8
+    rev: v1.5.7
+    hooks:
+    -   id: autopep8
+        name: autopep8
+        entry: autopep8
+        language: python
+        types: [python]
+        files: ^(arse/|tests/)
+
+-   repo: https://github.com/pycqa/autoflake
+    rev: v1.4
+    hooks:
+    -   id: autoflake
+        name: autoflake
+        entry: autoflake
+        language: python
+        types: [python]
+        args: [--remove-all-unused-imports, --remove-unused-variables, --in-place]
+        exclude: __init__.py
+        files: ^(arse/|tests/)
+-   repo: local
+    hooks:
+      - id: black
+        name: black
+        entry: black
+        language: system
+        types: [python]
+        files: ^(arse/|tests/)
+      - id: flake8
+        name: flake8
+        entry: flake8
+        language: system
+        types: [python]
+        files: ^(arse/|tests/)
