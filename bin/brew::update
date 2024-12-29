@@ -7,4 +7,3 @@ mkdir -p "dist"
 # if there is no poet :
 "$(poetry env info -p)"/bin/poet --single dotcat | sed '1d;$d' | sed 's/^    /  /' > ${checksum_path}
 cat ${prefix}-top ${checksum_path} ${prefix}-bottom
-

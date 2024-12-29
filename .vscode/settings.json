@@ -25,6 +25,5 @@
         "${workspaceFolder}/.doc8",
         "--ignore",
         "D001"
-    ],
-    "restructuredtext.linter.run": "onSave"
-
+    ]
+}

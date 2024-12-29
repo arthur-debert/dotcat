@@ -36,4 +36,3 @@ poetry install --with dev --with docs &&\
 echo "Last thing: running your first test" &&\
 poetry run pytest && echo "Your first test ran!"
 echo    "Setup complete"
-

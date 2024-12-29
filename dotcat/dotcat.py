@@ -62,7 +62,7 @@ def bold(text: str) -> str:
 
 USAGE = f"""
 {bold('dotcat')}
-Read values, including nested values, from structured data files (JSON, YAML, TOML, INI).
+Read values, including nested values, from structured data files (JSON, YAML, TOML, INI)
 
 {bold('USAGE:')}
 dotcat <file> <dot_separated_key>

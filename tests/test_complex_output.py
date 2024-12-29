@@ -1,21 +1,23 @@
 import pytest
 import yaml
 from dotcat.dotcat import format_output
-from datetime import date
+
 
 @pytest.fixture
 def complex_data():
-    with open("tests/fixtures/complex.yaml", 'r') as file:
+    with open("tests/fixtures/complex.yaml", "r") as file:
         return yaml.safe_load(file)
 
+
 def test_complex_output_raw(complex_data):
-    output = format_output(complex_data, 'raw')
+    output = format_output(complex_data, "raw")
     expected_output = str(complex_data)  # Directly convert the data to string
     assert output.strip() == expected_output.strip()
 
+
 def test_complex_output_formatted(complex_data):
-    output = format_output(complex_data, 'formatted')
-    expected_output = '''{
+    output = format_output(complex_data, "formatted")
+    expected_output = """{
     "name": "Example",
     "age": 30,
     "height": 5.9,
@@ -71,12 +73,13 @@ def test_complex_output_formatted(complex_data):
             ]
         }
     ]
-}'''
+}"""
     assert output.strip() == expected_output.strip()
+
 
 def test_complex_output_json(complex_data):
-    output = format_output(complex_data, 'json')
-    expected_output = '''{
+    output = format_output(complex_data, "json")
+    expected_output = """{
     "name": "Example",
     "age": 30,
     "height": 5.9,
@@ -132,14 +135,15 @@ def test_complex_output_json(complex_data):
             ]
         }
     ]
-}'''
-    expected_output = '''{"name": "Example", "age": 30, "height": 5.9, "birthdate": "1990-01-01", "address": {"street": "123 Main St", "city": "Anytown", "zip": 12345}, "phones": [{"type": "home", "number": "555-555-5555"}, {"type": "work", "number": "555-555-5556"}], "emails": [{"personal": "example@example.com"}, {"work": "work@example.com"}], "projects": [{"name": "Project A", "tasks": [{"task": "Task 1", "due": "2023-01-01"}, {"task": "Task 2", "due": "2023-02-01"}]}, {"name": "Project B", "tasks": [{"task": "Task 3", "due": "2023-03-01"}, {"task": "Task 4", "due": "2023-04-01"}]}]}'''
+}"""
+    expected_output = """{"name": "Example", "age": 30, "height": 5.9, "birthdate": "1990-01-01", "address": {"street": "123 Main St", "city": "Anytown", "zip": 12345}, "phones": [{"type": "home", "number": "555-555-5555"}, {"type": "work", "number": "555-555-5556"}], "emails": [{"personal": "example@example.com"}, {"work": "work@example.com"}], "projects": [{"name": "Project A", "tasks": [{"task": "Task 1", "due": "2023-01-01"}, {"task": "Task 2", "due": "2023-02-01"}]}, {"name": "Project B", "tasks": [{"task": "Task 3", "due": "2023-03-01"}, {"task": "Task 4", "due": "2023-04-01"}]}]}"""  # noqa E501
 
     assert output.strip() == expected_output.strip()
 
+
 def test_complex_output_yaml(complex_data):
-    output = format_output(complex_data, 'yaml')
-    expected_output = '''address:
+    output = format_output(complex_data, "yaml")
+    expected_output = """address:
   city: Anytown
   street: 123 Main St
   zip: 12345
@@ -168,12 +172,13 @@ projects:
     task: Task 3
   - due: 2023-04-01
     task: Task 4
-'''
+"""
     assert output.strip() == expected_output.strip()
 
+
 def test_complex_output_toml(complex_data):
-    output = format_output(complex_data, 'toml')
-    expected_output = '''name = "Example"
+    output = format_output(complex_data, "toml")
+    expected_output = """name = "Example"
 age = 30
 height = 5.9
 birthdate = 1990-01-01
@@ -218,18 +223,20 @@ due = 2023-04-01
 street = "123 Main St"
 city = "Anytown"
 zip = 12345
-'''
+"""
 
     # Normalize both outputs by removing extra newlines:
-    output = '\n'.join([line for line in output.splitlines() if line.strip()])
-    expected_output = '\n'.join([line for line in expected_output.splitlines() if line.strip()])
+    output = "\n".join([line for line in output.splitlines() if line.strip()])
+    expected_output = "\n".join(
+        [line for line in expected_output.splitlines() if line.strip()]
+    )
 
     assert output == expected_output
 
 
 def test_complex_output_ini(complex_data):
-    output = format_output(complex_data, 'ini')
-    expected_output = '''[default]
+    output = format_output(complex_data, "ini")
+    expected_output = """[default]
 name = Example
 age = 30
 height = 5.9
@@ -238,10 +245,12 @@ address = {'street': '123 Main St', 'city': 'Anytown', 'zip': 12345}
 phones = [{'type': 'home', 'number': '555-555-5555'}, {'type': 'work', 'number': '555-555-5556'}]
 emails = [{'personal': 'example@example.com'}, {'work': 'work@example.com'}]
 projects = [{'name': 'Project A', 'tasks': [{'task': 'Task 1', 'due': datetime.date(2023, 1, 1)}, {'task': 'Task 2', 'due': datetime.date(2023, 2, 1)}]}, {'name': 'Project B', 'tasks': [{'task': 'Task 3', 'due': datetime.date(2023, 3, 1)}, {'task': 'Task 4', 'due': datetime.date(2023, 4, 1)}]}]
-'''
+"""  # noqa E501
 
     # Normalize both outputs by removing extra newlines:
-    output = '\n'.join([line for line in output.splitlines() if line.strip()])
-    expected_output = '\n'.join([line for line in expected_output.splitlines() if line.strip()])
+    output = "\n".join([line for line in output.splitlines() if line.strip()])
+    expected_output = "\n".join(
+        [line for line in expected_output.splitlines() if line.strip()]
+    )
 
     assert output == expected_output

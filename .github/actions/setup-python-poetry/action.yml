@@ -71,4 +71,3 @@ runs:
     - name: Sanity check
       shell: bash
       run: poetry check
-

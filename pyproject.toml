@@ -95,4 +95,3 @@ exclude = [
 
 [tool.poetry.scripts]
 dotcat = "dotcat:main"
-

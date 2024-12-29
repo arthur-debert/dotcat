@@ -3,22 +3,23 @@ from dotcat import run
 import sys
 from io import StringIO
 
+
 @pytest.fixture
 def toml_file():
     return "tests/fixtures/test.toml"
 
 
-
 def test_toml_parsing_output_dict(toml_file):
-    test_args = [toml_file, 'python.editor.tabSize']
+    test_args = [toml_file, "python.editor.tabSize"]
     captured_output = StringIO()
     sys.stdout = captured_output
     run(test_args)
     sys.stdout = sys.__stdout__
-    assert captured_output.getvalue().strip() == '4'
+    assert captured_output.getvalue().strip() == "4"
+
 
 def test_output_raw(toml_file):
-    test_args = [toml_file, 'python.editor', '--output=raw']
+    test_args = [toml_file, "python.editor", "--output=raw"]
     captured_output = StringIO()
     sys.stdout = captured_output
     run(test_args)
@@ -26,8 +27,9 @@ def test_output_raw(toml_file):
     expected_output = "{'tabSize': 4}\n"
     assert captured_output.getvalue() == expected_output
 
+
 def test_output_formatted(toml_file):
-    test_args = [toml_file, 'python.editor', '--output=formatted']
+    test_args = [toml_file, "python.editor", "--output=formatted"]
     captured_output = StringIO()
     sys.stdout = captured_output
     run(test_args)
@@ -35,8 +37,9 @@ def test_output_formatted(toml_file):
     expected_output = '{\n    "tabSize": 4\n}\n'
     assert captured_output.getvalue() == expected_output
 
+
 def test_output_json(toml_file):
-    test_args = [toml_file, 'python.editor', '--output=json']
+    test_args = [toml_file, "python.editor", "--output=json"]
     captured_output = StringIO()
     sys.stdout = captured_output
     run(test_args)
@@ -44,29 +47,33 @@ def test_output_json(toml_file):
     expected_output = '{"tabSize": 4}\n'
     assert captured_output.getvalue() == expected_output
 
+
 def test_output_yaml(toml_file):
-    test_args = [toml_file, 'python.editor', '--output=yaml']
+    test_args = [toml_file, "python.editor", "--output=yaml"]
     captured_output = StringIO()
     sys.stdout = captured_output
     run(test_args)
     sys.stdout = sys.__stdout__
-    expected_output = 'tabSize: 4\n\n'
+    expected_output = "tabSize: 4\n\n"
     assert captured_output.getvalue() == expected_output
+
 
 def test_output_toml(toml_file):
-    test_args = [toml_file, 'python.editor', '--output=toml']
+    test_args = [toml_file, "python.editor", "--output=toml"]
     captured_output = StringIO()
     sys.stdout = captured_output
     run(test_args)
     sys.stdout = sys.__stdout__
-    expected_output = 'tabSize = 4\n\n'
+    expected_output = "tabSize = 4\n\n"
     assert captured_output.getvalue() == expected_output
 
+
 def test_output_ini(toml_file):
-    test_args = [toml_file, 'python.editor', '--output=ini']
+    test_args = [toml_file, "python.editor", "--output=ini"]
     captured_output = StringIO()
     sys.stdout = captured_output
     run(test_args)
     sys.stdout = sys.__stdout__
-    expected_output = '[default]\ntabsize = 4\n\n\n' # Key is lowercased and section is default
+    # Key is lowercased and section is default
+    expected_output = "[default]\ntabsize = 4\n\n\n"
     assert captured_output.getvalue() == expected_output
