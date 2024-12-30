@@ -57,6 +57,9 @@ twine = "6.0.1"
 black = "^24.10.0"
 pre-commit = "^4.0.1"
 flake8 = "^7.1.1"
+autopep8 = "^2.3.1"
+isort = "^5.13.2"
+piccolo-theme = "^0.24.0"
 
 [tool.poetry.group.docs.dependencies]
 sphinx-rtd-theme = "3.0.2"
@@ -95,3 +98,7 @@ exclude = [
 
 [tool.poetry.scripts]
 dotcat = "dotcat:main"
+
+[tool.virtualenv]
+in-project = true
+create = true
