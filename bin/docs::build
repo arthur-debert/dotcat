@@ -1,10 +1,15 @@
-# ...existing code...
-# Navigate to the docs directory
-main(){
-    script_path=$(dirname "$0")
-    cd "$script_path/../docs" || exit
-    (make clean && make html && cd ..  && open docs/_build/html/index.html) || exit
+#! /usr/bin/env bash
+# Parse arguments
+PREVIEW=true
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --no-preview|-q) PREVIEW=false ;;
+        # ...existing code...
+    esac
+    shift
+done
+poetry run sphinx-build docs/ _build/html
 
-}
-
-main "$@"
+if [ "$PREVIEW" = true ]; then
+    open _build/html/index.html
+fi
