@@ -60,6 +60,19 @@ def bold(text: str) -> str:
     return f"\033[1m{text}\033[0m"
 
 
+def red(text: str) -> str:
+    """
+    Returns the given text formatted in red.
+
+    Args:
+        text: The text to format.
+
+    Returns:
+        The formatted text.
+    """
+    return f"\033[31m{text}\033[0m"
+
+
 USAGE = f"""
 {bold('dotcat')}
 Read values, including nested values, from structured data files (JSON, YAML, TOML, INI)
@@ -115,7 +128,9 @@ def parse_yaml(file: StringIO) -> ParsedData:
     try:
         return yaml.safe_load(file)
     except yaml.YAMLError as e:
-        raise ParseError(f"[ERROR] {file.name}: Unable to parse YAML file: {str(e)}")
+        raise ParseError(
+            f"{red('[ERROR]')} {file.name}: Unable to parse YAML file: {str(e)}"
+        )
 
 
 def parse_json(file: StringIO) -> ParsedData:
@@ -133,7 +148,9 @@ def parse_json(file: StringIO) -> ParsedData:
     try:
         return json.load(file)
     except json.JSONDecodeError as e:
-        raise ParseError(f"[ERROR] {file.name}: Unable to parse JSON file: {str(e)}")
+        raise ParseError(
+            f"{red('[ERROR]')} {file.name}: Unable to parse JSON file: {str(e)}"
+        )
 
 
 def parse_toml(file: StringIO) -> ParsedData:
@@ -151,7 +168,9 @@ def parse_toml(file: StringIO) -> ParsedData:
     try:
         return toml.load(file)
     except toml.TomlDecodeError as e:
-        raise ParseError(f"[ERROR] {file.name}: Unable to parse TOML file: {str(e)}")
+        raise ParseError(
+            f"{red('[ERROR]')} {file.name}: Unable to parse TOML file: {str(e)}"
+        )
 
 
 FORMATS = [
@@ -179,18 +198,18 @@ def parse_file(filename: str) -> ParsedData:
         with open(filename, "r") as file:
             content = file.read().strip()
             if not content:
-                raise ValueError(f"[ERROR] {filename}: File is empty")
+                raise ValueError(f"{red('[ERROR]')} {filename}: File is empty")
             for parser in parsers:
                 try:
                     return parser(StringIO(content))
                 except ParseError:
                     continue
             msg = "Unsupported file format. Supported formats: JSON, YAML, TOML, INI"
-            raise ValueError(f"[ERROR] { filename}:{msg} ")
+            raise ValueError(f"{red('[ERROR]')} {filename}: {msg}")
     except FileNotFoundError:
-        raise FileNotFoundError(f"[ERROR] {filename}: File not found")
+        raise FileNotFoundError(f"{red('[ERROR]')} {filename}: File not found")
     except Exception as e:
-        raise ValueError(f"[ERROR] {filename}: Unable to parse file: {str(e)}")
+        raise ValueError(f"{red('[ERROR]')} {filename}: Unable to parse file: {str(e)}")
 
 
 ######################################################################
@@ -288,7 +307,7 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
     """
     if data is None:
         chain = lookup_chain.split(".")[0]
-        raise KeyError(f"[ERROR] key '{bold({chain})}' not found in {italics('')}")
+        raise KeyError(f"{red('[ERROR] k')}ey '{chain}' not found in {italics('')}")
     found_keys = []
     for key in lookup_chain.split("."):
         if LIST_ACCESS_SYMBOL in key:
@@ -298,7 +317,7 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
             data = data.get(key)
         if data is None:
             keys = ".".join(found_keys)
-            raise KeyError(f"[ERROR] key '{key}' not found in { keys}")
+            raise KeyError(f"{red('[ERROR]')} key '{red(key)}' not found in {keys}")
         found_keys.append(key)
     return data
 
@@ -399,9 +418,9 @@ def run(args: List[str] = None) -> None:
                 if os.path.exists(filename):
                     # File exists, but dot pattern is missing
                     print(
-                        f"Dot path required. Which value do you want me to look up in {filename}?"
+                        f"{red('Dot')} path required. {red('Which')} value do you want me to look up in {filename}?"
                     )
-                    print(f"\n$dotcat {filename} <pattern>")
+                    print(f"\n$dotcat {filename} {red('<pattern>')}")
                     sys.exit(2)  # Invalid usage
             except Exception:
                 # If there's any error checking the file, fall back to general usage message
@@ -412,9 +431,9 @@ def run(args: List[str] = None) -> None:
             if "." in lookup_chain:
                 # It looks like a dot path, so assume the file is missing
                 print(
-                    f"File path required. Which file contains the value at {lookup_chain}?"
+                    f"{red('File')} path required. {red('Which')} file contains the value at {lookup_chain}?"
                 )
-                print(f"\n$dotcat <file> {lookup_chain}")
+                print(f"\n$dotcat {red('<file>')} {lookup_chain}")
                 sys.exit(2)  # Invalid usage
             # Otherwise, it might be a file without an extension or something else,
             # so fall back to the general usage message
@@ -427,10 +446,10 @@ def run(args: List[str] = None) -> None:
     try:
         data = parse_file(filename)
     except FileNotFoundError as e:
-        print(e)
+        print(red(str(e)))
         sys.exit(3)  # File not found
     except ValueError as e:
-        print(e)
+        print(red(str(e)))
         sys.exit(4)  # Parsing error
 
     # get the value at the specified key
@@ -438,7 +457,7 @@ def run(args: List[str] = None) -> None:
         value = from_attr_chain(data, lookup_chain)
         print(format_output(value, output_format))
     except KeyError as e:
-        print(f"[ERROR] {filename}: " + e.args[0].strip('"'))
+        print(f"{red('[ERROR]')} {filename}: " + e.args[0].strip('"'))
         sys.exit(5)  # Key not found
 
 
