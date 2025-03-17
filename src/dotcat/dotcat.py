@@ -307,7 +307,7 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
     """
     if data is None:
         chain = lookup_chain.split(".")[0]
-        raise KeyError(f"{red('[ERROR] k')}ey '{chain}' not found in {italics('')}")
+        raise KeyError(f"{red('[ERROR]')} key '{chain}' not found in {italics('')}")
     found_keys = []
     for key in lookup_chain.split("."):
         if LIST_ACCESS_SYMBOL in key:
@@ -337,6 +337,11 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
     Returns:
         The filename, lookup chain, output format, and check_install flag.
     """
+    # Handle help commands
+    if args is None or len(args) == 0 or args == ["help"] or args == ["--help"]:
+        print(USAGE)
+        sys.exit(0)
+
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("file", type=str, nargs="?", help="The file to read from")
     parser.add_argument(
@@ -356,10 +361,6 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
         action="store_true",
         help="Check if required packages are installed",
     )
-
-    if args is None or len(args) < 1:
-        print(USAGE)
-        sys.exit(2)
 
     parsed_args = parser.parse_args(args)
     return (
