@@ -365,8 +365,22 @@ def run(args: List[str] = None) -> None:
         check_install()
         return
 
-    # Check if lookup_chain is provided
+    # Check if lookup_chain is provided and handle missing dot pattern
     if lookup_chain is None:
+        # Check if the file exists
+        try:
+            if os.path.exists(filename):
+                # File exists, but dot pattern is missing
+                print(
+                    f"Dot path required. Which value do you want me to look up in {filename}?"
+                )
+                print(f"\n$dotcat {filename} <pattern>")
+                sys.exit(2)  # Invalid usage
+        except Exception:
+            # If there's any error checking the file, fall back to general usage message
+            pass
+
+        # General usage message for other cases
         print(USAGE)
         sys.exit(2)  # Invalid usage
 
