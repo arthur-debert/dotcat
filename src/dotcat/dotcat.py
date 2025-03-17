@@ -351,6 +351,23 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
     )
 
 
+def is_likely_dot_path(arg: str) -> bool:
+    """
+    Determines if an argument is likely a dot path rather than a file path.
+
+    Args:
+        arg: The argument to check.
+
+    Returns:
+        True if the argument is likely a dot path, False otherwise.
+    """
+    # If it contains dots and doesn't look like a file path
+    if "." in arg and not os.path.exists(arg):
+        # Check if it has multiple segments separated by dots
+        return len(arg.split(".")) > 1
+    return False
+
+
 def run(args: List[str] = None) -> None:
     """
     Processes the command-line arguments and prints the value from the structured data file.
@@ -365,20 +382,42 @@ def run(args: List[str] = None) -> None:
         check_install()
         return
 
-    # Check if lookup_chain is provided and handle missing dot pattern
-    if lookup_chain is None:
-        # Check if the file exists
-        try:
-            if os.path.exists(filename):
-                # File exists, but dot pattern is missing
+    # Special case: If we have only one argument and it looks like a dot path,
+    # treat it as the dot path rather than the file
+    if filename is not None and lookup_chain is None and len(args) == 1:
+        if is_likely_dot_path(filename):
+            # Swap the arguments
+            lookup_chain = filename
+            filename = None
+            # Now filename is None and lookup_chain is not None
+
+    # Handle cases where one of the required arguments is missing
+    if lookup_chain is None or filename is None:
+        if filename is not None and lookup_chain is None:
+            # Case 1: File is provided but dot pattern is missing
+            try:
+                if os.path.exists(filename):
+                    # File exists, but dot pattern is missing
+                    print(
+                        f"Dot path required. Which value do you want me to look up in {filename}?"
+                    )
+                    print(f"\n$dotcat {filename} <pattern>")
+                    sys.exit(2)  # Invalid usage
+            except Exception:
+                # If there's any error checking the file, fall back to general usage message
+                pass
+        elif filename is None and lookup_chain is not None:
+            # Case 2: Dot pattern is provided but file is missing
+            # Check if the argument looks like a dot path (contains dots)
+            if "." in lookup_chain:
+                # It looks like a dot path, so assume the file is missing
                 print(
-                    f"Dot path required. Which value do you want me to look up in {filename}?"
+                    f"File path required. Which file contains the value at {lookup_chain}?"
                 )
-                print(f"\n$dotcat {filename} <pattern>")
+                print(f"\n$dotcat <file> {lookup_chain}")
                 sys.exit(2)  # Invalid usage
-        except Exception:
-            # If there's any error checking the file, fall back to general usage message
-            pass
+            # Otherwise, it might be a file without an extension or something else,
+            # so fall back to the general usage message
 
         # General usage message for other cases
         print(USAGE)
