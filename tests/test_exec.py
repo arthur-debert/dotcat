@@ -33,7 +33,7 @@ dotcat somefile.toml a.b.c
     actual_output = remove_ansi_escape_sequences(captured_output.getvalue().strip())
     assert actual_output == expected_output
     assert pytest_wrapped_e.type == SystemExit
-    assert pytest_wrapped_e.value.code == 2
+    assert pytest_wrapped_e.value.code == 0  # Changed from 2 to 0 to match new behavior
 
 
 def test_argument_parsing_default_output():
@@ -114,3 +114,83 @@ def test_check_install():
     sys.stdout = sys.__stdout__
     actual_output = captured_output.getvalue().strip()
     assert actual_output == "Dotcat is good to go."
+
+
+def test_help_command():
+    test_args = ["help"]
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        run(test_args)
+    sys.stdout = sys.__stdout__
+    expected_output = """
+dotcat
+Read values, including nested values, from structured data files (JSON, YAML, TOML, INI)
+
+USAGE:
+dotcat <file> <dot_separated_key>
+
+EXAMPLE:
+dotcat config.json python.editor.tabSize
+dotcat somefile.toml a.b.c
+""".strip()
+    actual_output = remove_ansi_escape_sequences(captured_output.getvalue().strip())
+    assert actual_output == expected_output
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 0  # Should exit with code 0 for help
+
+
+def test_help_flag():
+    test_args = ["--help"]
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        run(test_args)
+    sys.stdout = sys.__stdout__
+    expected_output = """
+dotcat
+Read values, including nested values, from structured data files (JSON, YAML, TOML, INI)
+
+USAGE:
+dotcat <file> <dot_separated_key>
+
+EXAMPLE:
+dotcat config.json python.editor.tabSize
+dotcat somefile.toml a.b.c
+""".strip()
+    actual_output = remove_ansi_escape_sequences(captured_output.getvalue().strip())
+    assert actual_output == expected_output
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 0  # Should exit with code 0 for help
+
+
+def test_help_outputs_match():
+    """Test that all three help command forms produce the same output."""
+    # Capture output for no arguments
+    no_args_output = StringIO()
+    sys.stdout = no_args_output
+    with pytest.raises(SystemExit):
+        run([])
+    sys.stdout = sys.__stdout__
+    no_args_text = remove_ansi_escape_sequences(no_args_output.getvalue().strip())
+
+    # Capture output for 'help' command
+    help_cmd_output = StringIO()
+    sys.stdout = help_cmd_output
+    with pytest.raises(SystemExit):
+        run(["help"])
+    sys.stdout = sys.__stdout__
+    help_cmd_text = remove_ansi_escape_sequences(help_cmd_output.getvalue().strip())
+
+    # Capture output for '--help' flag
+    help_flag_output = StringIO()
+    sys.stdout = help_flag_output
+    with pytest.raises(SystemExit):
+        run(["--help"])
+    sys.stdout = sys.__stdout__
+    help_flag_text = remove_ansi_escape_sequences(help_flag_output.getvalue().strip())
+
+    # Assert all outputs are the same
+    assert no_args_text == help_cmd_text
+    assert help_cmd_text == help_flag_text
+    assert no_args_text == help_flag_text
