@@ -114,3 +114,27 @@ def test_check_install():
     sys.stdout = sys.__stdout__
     actual_output = captured_output.getvalue().strip()
     assert actual_output == "Dotcat is good to go."
+
+
+def test_file_without_dot_pattern():
+    test_args = ["tests/fixtures/test.json"]
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        run(test_args)
+    sys.stdout = sys.__stdout__
+    expected_output = """
+dotcat
+Read values, including nested values, from structured data files (JSON, YAML, TOML, INI)
+
+USAGE:
+dotcat <file> <dot_separated_key>
+
+EXAMPLE:
+dotcat config.json python.editor.tabSize
+dotcat somefile.toml a.b.c
+""".strip()
+    actual_output = remove_ansi_escape_sequences(captured_output.getvalue().strip())
+    assert actual_output == expected_output
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 2

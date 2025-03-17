@@ -26,8 +26,8 @@ from typing import Any, Dict, List, Tuple, Union
 
 ParsedData = Union[Dict[str, Any], List[Any]]
 
-LIST_ACCESS_SYMBOL = '@'
-SLICE_SYMBOL = ':'
+LIST_ACCESS_SYMBOL = "@"
+SLICE_SYMBOL = ":"
 
 ######################################################################
 # Output formatting functions
@@ -79,6 +79,7 @@ dotcat somefile.toml a.b.c
 
 class ParseError(Exception):
     """Custom exception for parsing errors."""
+
     pass
 
 
@@ -93,6 +94,7 @@ def parse_ini(file: StringIO) -> Dict[str, Dict[str, str]]:
         The parsed content as a dictionary.
     """
     from configparser import ConfigParser
+
     config = ConfigParser()
     config.read_file(file)
     return {s: dict(config.items(s)) for s in config.sections()}
@@ -109,11 +111,11 @@ def parse_yaml(file: StringIO) -> ParsedData:
         The parsed content.
     """
     import yaml
+
     try:
         return yaml.safe_load(file)
     except yaml.YAMLError as e:
-        raise ParseError(
-            f"[ERROR] {file.name}: Unable to parse YAML file: {str(e)}")
+        raise ParseError(f"[ERROR] {file.name}: Unable to parse YAML file: {str(e)}")
 
 
 def parse_json(file: StringIO) -> ParsedData:
@@ -127,11 +129,11 @@ def parse_json(file: StringIO) -> ParsedData:
         The parsed content.
     """
     import json
+
     try:
         return json.load(file)
     except json.JSONDecodeError as e:
-        raise ParseError(
-            f"[ERROR] {file.name}: Unable to parse JSON file: {str(e)}")
+        raise ParseError(f"[ERROR] {file.name}: Unable to parse JSON file: {str(e)}")
 
 
 def parse_toml(file: StringIO) -> ParsedData:
@@ -145,18 +147,18 @@ def parse_toml(file: StringIO) -> ParsedData:
         The parsed content.
     """
     import toml
+
     try:
         return toml.load(file)
     except toml.TomlDecodeError as e:
-        raise ParseError(
-            f"[ERROR] {file.name}: Unable to parse TOML file: {str(e)}")
+        raise ParseError(f"[ERROR] {file.name}: Unable to parse TOML file: {str(e)}")
 
 
 FORMATS = [
-    (['.json'], parse_json),
-    (['.yaml', '.yml'], parse_yaml),
-    (['.toml'], parse_toml),
-    (['.ini'], parse_ini)
+    ([".json"], parse_json),
+    ([".yaml", ".yml"], parse_yaml),
+    ([".toml"], parse_toml),
+    ([".ini"], parse_ini),
 ]
 
 
@@ -174,7 +176,7 @@ def parse_file(filename: str) -> ParsedData:
     parsers = [parser for fmts, parser in FORMATS if ext in fmts]
 
     try:
-        with open(filename, 'r') as file:
+        with open(filename, "r") as file:
             content = file.read().strip()
             if not content:
                 raise ValueError(f"[ERROR] {filename}: File is empty")
@@ -189,6 +191,7 @@ def parse_file(filename: str) -> ParsedData:
         raise FileNotFoundError(f"[ERROR] {filename}: File not found")
     except Exception as e:
         raise ValueError(f"[ERROR] {filename}: Unable to parse file: {str(e)}")
+
 
 ######################################################################
 # Formatting
@@ -207,9 +210,9 @@ def format_output(data: Any, output_format: str) -> str:
         The formatted output.
     """
 
-    if output_format == 'raw':
+    if output_format == "raw":
         return str(data)
-    if output_format in ('formatted', 'json'):
+    if output_format in ("formatted", "json"):
         import json
 
         def date_converter(o):
@@ -217,13 +220,15 @@ def format_output(data: Any, output_format: str) -> str:
                 return o.isoformat()
             return o
 
-        indent = 4 if output_format == 'formatted' else None
+        indent = 4 if output_format == "formatted" else None
         return json.dumps(data, indent=indent, default=date_converter)
-    elif output_format == 'yaml':
+    elif output_format == "yaml":
         import yaml
+
         return yaml.dump(data, default_flow_style=False)
-    elif output_format == 'toml':
+    elif output_format == "toml":
         import toml
+
         # Check if it's a list of dicts
         if isinstance(data, list) and all(isinstance(item, dict) for item in data):
             # If it's a list of dictionaries, wrap it in a dictionary with a key like "items"
@@ -231,10 +236,12 @@ def format_output(data: Any, output_format: str) -> str:
         else:
             return toml.dumps(data)  # Handle other cases as before
 
-    elif output_format == 'ini':
+    elif output_format == "ini":
         config = ConfigParser()
-        if not isinstance(data, dict) or not all(isinstance(v, dict) for v in data.values()):
-            data = {'default': data}
+        if not isinstance(data, dict) or not all(
+            isinstance(v, dict) for v in data.values()
+        ):
+            data = {"default": data}
         for section, values in data.items():
             config[section] = values
         output = StringIO()
@@ -242,6 +249,7 @@ def format_output(data: Any, output_format: str) -> str:
         return output.getvalue()
     else:
         return str(data)
+
 
 ######################################################################
 # Data access functions
@@ -266,6 +274,7 @@ def access_list(data: Any, key: str, index: str) -> Any:
     else:
         return data.get(key)[int(index)]
 
+
 def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
     """
     Accesses a nested dictionary value with an attribute chain encoded by a dot-separated string.
@@ -278,21 +287,21 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
         The value at the specified nested key, or None if the key doesn't exist.
     """
     if data is None:
-        chain = lookup_chain.split('.')[0]
-        raise KeyError(
-            f"[ERROR] key '{bold({chain})}' not found in {italics('')}")
+        chain = lookup_chain.split(".")[0]
+        raise KeyError(f"[ERROR] key '{bold({chain})}' not found in {italics('')}")
     found_keys = []
-    for key in lookup_chain.split('.'):
+    for key in lookup_chain.split("."):
         if LIST_ACCESS_SYMBOL in key:
             key, index = key.split(LIST_ACCESS_SYMBOL)
             data = access_list(data, key, index)
         else:
             data = data.get(key)
         if data is None:
-            keys = '.'.join(found_keys)
+            keys = ".".join(found_keys)
             raise KeyError(f"[ERROR] key '{key}' not found in { keys}")
         found_keys.append(key)
     return data
+
 
 ######################################################################
 # Argument parsing, main, and run functions
@@ -310,17 +319,37 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
         The filename, lookup chain, output format, and check_install flag.
     """
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('file', type=str, nargs='?', help='The file to read from')
-    parser.add_argument('dot_separated_key', type=str, nargs='?', help='The dot-separated key to look up')
-    parser.add_argument('--output', type=str, default='raw', help='The output format (raw, formatted, json, yaml, toml, ini)')
-    parser.add_argument('--check-install', action='store_true', help='Check if required packages are installed')
+    parser.add_argument("file", type=str, nargs="?", help="The file to read from")
+    parser.add_argument(
+        "dot_separated_key",
+        type=str,
+        nargs="?",
+        help="The dot-separated key to look up",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="raw",
+        help="The output format (raw, formatted, json, yaml, toml, ini)",
+    )
+    parser.add_argument(
+        "--check-install",
+        action="store_true",
+        help="Check if required packages are installed",
+    )
 
     if args is None or len(args) < 1:
         print(USAGE)
         sys.exit(2)
 
     parsed_args = parser.parse_args(args)
-    return parsed_args.file, parsed_args.dot_separated_key, parsed_args.output, parsed_args.check_install
+    return (
+        parsed_args.file,
+        parsed_args.dot_separated_key,
+        parsed_args.output,
+        parsed_args.check_install,
+    )
+
 
 def run(args: List[str] = None) -> None:
     """
@@ -335,6 +364,11 @@ def run(args: List[str] = None) -> None:
     if check_install_flag:
         check_install()
         return
+
+    # Check if lookup_chain is provided
+    if lookup_chain is None:
+        print(USAGE)
+        sys.exit(2)  # Invalid usage
 
     # gets the parsed data
     try:
@@ -361,10 +395,11 @@ def main() -> None:
     """
     run(sys.argv[1:])
 
+
 def check_install():
-    import json, yaml, toml
     print("Dotcat is good to go.")
     return
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
