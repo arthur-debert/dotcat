@@ -116,6 +116,37 @@ def test_check_install():
     assert actual_output == "Dotcat is good to go."
 
 
+def test_file_without_dot_pattern():
+    test_args = ["tests/fixtures/test.json"]
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        run(test_args)
+    sys.stdout = sys.__stdout__
+    actual_output = remove_ansi_escape_sequences(captured_output.getvalue().strip())
+    # Check that the output contains the specific file name and guidance
+    assert "Dot path required" in actual_output
+    assert "tests/fixtures/test.json" in actual_output
+    assert "<pattern>" in actual_output
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 2
+
+
+def test_dot_path_without_file():
+    test_args = ["python.editor.tabSize"]
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        run(test_args)
+    sys.stdout = sys.__stdout__
+    actual_output = remove_ansi_escape_sequences(captured_output.getvalue().strip())
+    # Check that the output contains the specific dot path and guidance
+    assert "File path required" in actual_output
+    assert "python.editor.tabSize" in actual_output
+    assert pytest_wrapped_e.type == SystemExit
+    assert pytest_wrapped_e.value.code == 2
+
+
 def test_help_command():
     test_args = ["help"]
     captured_output = StringIO()
