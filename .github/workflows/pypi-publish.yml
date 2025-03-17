@@ -27,10 +27,23 @@ jobs:
           python-version: '3.9' # Specify the Python version you want to use
           cache-key-prefix: 'test-env'
 
-      - name: Build
-        shell: bash
+      - name: Publish to PyPI
+        id: publish
+        if: github.event.inputs.publish == 'true'
         run: |
-          ./bin/publish
+          # Extract version from pyproject.toml
+          VERSION=$(grep -m 1 'version = ' pyproject.toml | cut -d '"' -f 2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          # Run publish script
+          source .venv/bin/activate && ./bin/publish
+
+          # Create annotation with release link
+          echo "::notice title=PyPI Release::Package published to https://pypi.org/project/nanodoc/$VERSION/"
+        env:
+          TWINE_USERNAME: '__token__'
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+          TWINE_NON_INTERACTIVE: 1
 
       - name: Determine Version
         id: determine_version
