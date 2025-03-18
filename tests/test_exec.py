@@ -1,6 +1,7 @@
 from io import StringIO
 import sys
 from dotcat import run, HELP
+from dotcat.__version__ import __version__
 
 import pytest
 
@@ -104,6 +105,17 @@ def test_check_install():
     sys.stdout = sys.__stdout__
     actual_output = captured_output.getvalue().strip()
     assert actual_output == "Dotcat is good to go."
+
+
+def test_version_flag():
+    test_args = ["--version"]
+    captured_output = StringIO()
+    sys.stdout = captured_output
+    run(test_args)
+    sys.stdout = sys.__stdout__
+    actual_output = captured_output.getvalue().strip()
+    assert actual_output == f"dotcat version {__version__}"
+    # No SystemExit is raised for --version
 
 
 def test_file_without_dot_pattern():

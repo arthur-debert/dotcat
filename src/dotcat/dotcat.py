@@ -24,6 +24,8 @@ from configparser import ConfigParser
 from io import StringIO
 from typing import Any, Dict, List, Tuple, Union
 
+from .__version__ import __version__
+
 ParsedData = Union[Dict[str, Any], List[Any]]
 
 LIST_ACCESS_SYMBOL = "@"
@@ -91,6 +93,7 @@ Read values from structured data files (JSON, YAML, TOML, INI)
   dotcat pyproject.toml project.version
   dotcat package.json dependencies.react
 
+  dotcat --version
   See `dotcat --help` for more information.
 """
 
@@ -98,7 +101,9 @@ HELP_CORE = (
     USAGE
     + f"""
 
-{bold('MORE:')}"""
+{bold('OPTIONS:')}
+  --version       Show version information
+  --help          Show this help message and exit"""
 )
 
 HELP_EXAMPLE = """
@@ -375,7 +380,7 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
 ######################################################################
 
 
-def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
+def parse_args(args: List[str]) -> Tuple[str, str, str, bool, bool]:
     """
     Returns the filename, dotted-path, output format, and check_install flag.
 
@@ -383,7 +388,7 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
         args: The list of command-line arguments.
 
     Returns:
-        The filename, dotted-path, output format, and check_install flag.
+        The filename, dotted-path, output format, check_install flag, and version flag.
     """
     # Handle help commands
     if args is None or len(args) == 0:
@@ -414,6 +419,11 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
         action="store_true",
         help="Check if required packages are installed",
     )
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Show version information",
+    )
 
     parsed_args = parser.parse_args(args)
     return (
@@ -421,6 +431,7 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
         parsed_args.dotted_path,
         parsed_args.output,
         parsed_args.check_install,
+        parsed_args.version,
     )
 
 
@@ -449,10 +460,16 @@ def run(args: List[str] = None) -> None:
         args: The list of command-line arguments.
     """
     # validates arguments
-    filename, lookup_chain, output_format, check_install_flag = parse_args(args)
+    filename, lookup_chain, output_format, check_install_flag, version_flag = (
+        parse_args(args)
+    )
 
     if check_install_flag:
         check_install()
+        return
+
+    if version_flag:
+        print(f"dotcat version {__version__}")
         return
 
     # Special case: If we have only one argument and it looks like a dotted-path,

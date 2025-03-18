@@ -1,2 +1,3 @@
-import importlib;
-__version__ = importlib.metadata.version('dotcat')
+from importlib import metadata
+
+__version__ = metadata.version("dotcat")
