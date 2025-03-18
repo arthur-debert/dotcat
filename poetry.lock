@@ -175,14 +175,14 @@ virtualenv = ["virtualenv (>=20.0.35)"]
 name = "certifi"
 version = "2024.6.2"
 description = "Python package for providing Mozilla's CA Bundle."
-optional = false
+optional = true
 python-versions = ">=3.6"
-groups = ["main", "dev"]
+groups = ["main"]
+markers = "extra == \"dev\" or extra == \"docs\""
 files = [
     {file = "certifi-2024.6.2-py3-none-any.whl", hash = "sha256:ddc6c8ce995e6987e7faf5e3f1b02b302836a0e5d98ece18392cb1a36c72ad56"},
     {file = "certifi-2024.6.2.tar.gz", hash = "sha256:3cd43f1c6fa7dedc5899d69d3ad0398fd018ad1a17fba83ddaf78aa46c747516"},
 ]
-markers = {main = "extra == \"dev\" or extra == \"docs\""}
 
 [[package]]
 name = "cffi"
@@ -282,9 +282,10 @@ files = [
 name = "charset-normalizer"
 version = "3.4.1"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
-optional = false
+optional = true
 python-versions = ">=3.7"
-groups = ["main", "dev"]
+groups = ["main"]
+markers = "extra == \"dev\" or extra == \"docs\""
 files = [
     {file = "charset_normalizer-3.4.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:91b36a978b5ae0ee86c394f5a54d6ef44db1de0815eb43de826d41d21e4af3de"},
     {file = "charset_normalizer-3.4.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:7461baadb4dc00fd9e0acbe254e3d7d2112e7f92ced2adc96e54ef6501c5f176"},
@@ -379,7 +380,6 @@ files = [
     {file = "charset_normalizer-3.4.1-py3-none-any.whl", hash = "sha256:d98b1668f06378c6dbefec3b92299716b931cd4e6061f3c875a71ced1780ab85"},
     {file = "charset_normalizer-3.4.1.tar.gz", hash = "sha256:44251f18cd68a75b56585dd00dae26183e102cd5e0f9f1466e6df5da2ed64ea3"},
 ]
-markers = {main = "extra == \"dev\" or extra == \"docs\""}
 
 [[package]]
 name = "click"
@@ -401,14 +401,14 @@ colorama = {version = "*", markers = "platform_system == \"Windows\""}
 name = "colorama"
 version = "0.4.6"
 description = "Cross-platform colored terminal text."
-optional = false
+optional = true
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7"
-groups = ["main", "dev"]
+groups = ["main"]
+markers = "extra == \"dev\" and os_name == \"nt\" or sys_platform == \"win32\" and (extra == \"dev\" or extra == \"docs\") or platform_system == \"Windows\" and (extra == \"dev\" or extra == \"docs\")"
 files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
 ]
-markers = {main = "extra == \"dev\" and os_name == \"nt\" or sys_platform == \"win32\" and (extra == \"dev\" or extra == \"docs\") or platform_system == \"Windows\" and (extra == \"dev\" or extra == \"docs\")"}
 
 [[package]]
 name = "coverage"
@@ -697,9 +697,10 @@ pyflakes = ">=3.2.0,<3.3.0"
 name = "homebrew-pypi-poet"
 version = "0.10.0"
 description = "Writes Homebrew stanzas for pypi packages"
-optional = false
+optional = true
 python-versions = "*"
 groups = ["main"]
+markers = "extra == \"dev\""
 files = [
     {file = "homebrew-pypi-poet-0.10.0.tar.gz", hash = "sha256:e09e997e35a98f66445f9a39ccb33d6d93c5cd090302a59f231707eac0bf378e"},
     {file = "homebrew_pypi_poet-0.10.0-py2.py3-none-any.whl", hash = "sha256:65824f97aea0e713c4ac18aa2ef4477aca69426554eac842eeaaddf97df3fc47"},
@@ -729,14 +730,14 @@ license = ["ukkonen"]
 name = "idna"
 version = "3.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
-optional = false
+optional = true
 python-versions = ">=3.6"
-groups = ["main", "dev"]
+groups = ["main"]
+markers = "extra == \"dev\" or extra == \"docs\""
 files = [
     {file = "idna-3.10-py3-none-any.whl", hash = "sha256:946d195a0d259cbba61165e88e65941f16e9b36ea6ddb97f00452bae8b1287d3"},
     {file = "idna-3.10.tar.gz", hash = "sha256:12f65c9b470abda6dc35cf8e63cc574b1c52b11df2c86030af0ac09b01b13ea9"},
 ]
-markers = {main = "extra == \"dev\" or extra == \"docs\""}
 
 [package.extras]
 all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2)"]
@@ -953,9 +954,10 @@ trio = ["async_generator ; python_version == \"3.6\"", "trio"]
 name = "jinja2"
 version = "3.1.5"
 description = "A very fast and expressive template engine."
-optional = false
+optional = true
 python-versions = ">=3.7"
 groups = ["main"]
+markers = "extra == \"dev\" or extra == \"docs\""
 files = [
     {file = "jinja2-3.1.5-py3-none-any.whl", hash = "sha256:aba0f4dc9ed8013c424088f68a5c226f7d6097ed89b246d7749c2ec4175c6adb"},
     {file = "jinja2-3.1.5.tar.gz", hash = "sha256:8fefff8dc3034e27bb80d67c671eb8a9bc424c0ef4c0826edbff304cceff43bb"},
@@ -999,24 +1001,6 @@ test = ["pyfakefs", "pytest (>=6,!=8.1.*)"]
 type = ["pygobject-stubs", "pytest-mypy", "shtab", "types-pywin32"]
 
 [[package]]
-name = "mando"
-version = "0.7.1"
-description = "Create Python CLI apps with little to no effort at all!"
-optional = false
-python-versions = "*"
-groups = ["dev"]
-files = [
-    {file = "mando-0.7.1-py2.py3-none-any.whl", hash = "sha256:26ef1d70928b6057ee3ca12583d73c63e05c49de8972d620c278a7b206581a8a"},
-    {file = "mando-0.7.1.tar.gz", hash = "sha256:18baa999b4b613faefb00eac4efadcf14f510b59b924b66e08289aa1de8c3500"},
-]
-
-[package.dependencies]
-six = "*"
-
-[package.extras]
-restructuredtext = ["rst2ansi"]
-
-[[package]]
 name = "markdown-it-py"
 version = "3.0.0"
 description = "Python port of markdown-it. Markdown parsing, done right!"
@@ -1046,9 +1030,10 @@ testing = ["coverage", "pytest", "pytest-cov", "pytest-regressions"]
 name = "markupsafe"
 version = "3.0.2"
 description = "Safely add untrusted strings to HTML/XML markup."
-optional = false
+optional = true
 python-versions = ">=3.9"
 groups = ["main"]
+markers = "extra == \"dev\" or extra == \"docs\""
 files = [
     {file = "MarkupSafe-3.0.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:7e94c425039cde14257288fd61dcfb01963e658efbc0ff54f5306b06054700f8"},
     {file = "MarkupSafe-3.0.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:9e2d922824181480953426608b81967de705c3cef4d1af983af849d7bd619158"},
@@ -1751,7 +1736,7 @@ version = "6.0.2"
 description = "YAML parser and emitter for Python"
 optional = false
 python-versions = ">=3.8"
-groups = ["main", "dev"]
+groups = ["main"]
 files = [
     {file = "PyYAML-6.0.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:0a9a2848a5b7feac301353437eb7d5957887edbf81d56e903999a75a3d743086"},
     {file = "PyYAML-6.0.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:29717114e51c84ddfba879543fb232a6ed60086602313ca38cce623c1d62cfbf"},
@@ -1809,25 +1794,6 @@ files = [
 ]
 
 [[package]]
-name = "radon"
-version = "6.0.1"
-description = "Code Metrics in Python"
-optional = false
-python-versions = "*"
-groups = ["dev"]
-files = [
-    {file = "radon-6.0.1-py2.py3-none-any.whl", hash = "sha256:632cc032364a6f8bb1010a2f6a12d0f14bc7e5ede76585ef29dc0cecf4cd8859"},
-    {file = "radon-6.0.1.tar.gz", hash = "sha256:d1ac0053943a893878940fedc8b19ace70386fc9c9bf0a09229a44125ebf45b5"},
-]
-
-[package.dependencies]
-colorama = {version = ">=0.4.1", markers = "python_version > \"3.4\""}
-mando = ">=0.6,<0.8"
-
-[package.extras]
-toml = ["tomli (>=2.0.1)"]
-
-[[package]]
 name = "readme-renderer"
 version = "44.0"
 description = "readme_renderer is a library for rendering readme descriptions for Warehouse"
@@ -1852,14 +1818,14 @@ md = ["cmarkgfm (>=0.8.0)"]
 name = "requests"
 version = "2.32.3"
 description = "Python HTTP for Humans."
-optional = false
+optional = true
 python-versions = ">=3.8"
-groups = ["main", "dev"]
+groups = ["main"]
+markers = "extra == \"dev\" or extra == \"docs\""
 files = [
     {file = "requests-2.32.3-py3-none-any.whl", hash = "sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6"},
     {file = "requests-2.32.3.tar.gz", hash = "sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760"},
 ]
-markers = {main = "extra == \"dev\" or extra == \"docs\""}
 
 [package.dependencies]
 certifi = ">=2017.4.17"
@@ -2011,9 +1977,10 @@ jeepney = ">=0.6"
 name = "setuptools"
 version = "75.3.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
-optional = false
+optional = true
 python-versions = ">=3.8"
 groups = ["main"]
+markers = "extra == \"dev\""
 files = [
     {file = "setuptools-75.3.0-py3-none-any.whl", hash = "sha256:f2504966861356aa38616760c0f66568e535562374995367b4e69c7143cf6bcd"},
     {file = "setuptools-75.3.0.tar.gz", hash = "sha256:fba5dd4d766e97be1b1681d98712680ae8f2f26d7881245f2ce9e40714f1a686"},
@@ -2045,14 +2012,14 @@ files = [
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
-optional = false
+optional = true
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
-groups = ["main", "dev"]
+groups = ["main"]
+markers = "extra == \"dev\""
 files = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
 ]
-markers = {main = "extra == \"dev\""}
 
 [[package]]
 name = "snowballstemmer"
@@ -2422,14 +2389,14 @@ files = [
 name = "urllib3"
 version = "2.3.0"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
-optional = false
+optional = true
 python-versions = ">=3.9"
-groups = ["main", "dev"]
+groups = ["main"]
+markers = "extra == \"dev\" or extra == \"docs\""
 files = [
     {file = "urllib3-2.3.0-py3-none-any.whl", hash = "sha256:1cee9ad369867bfdbbb48b7dd50374c0967a0bb7710050facf0dd6911440e3df"},
     {file = "urllib3-2.3.0.tar.gz", hash = "sha256:f8c5449b3cf0861679ce7e0503c7b44b5ec981bec0d1d3795a07f1ba96f0204d"},
 ]
-markers = {main = "extra == \"dev\" or extra == \"docs\""}
 
 [package.extras]
 brotli = ["brotli (>=1.0.9) ; platform_python_implementation == \"CPython\"", "brotlicffi (>=0.8.0) ; platform_python_implementation != \"CPython\""]
@@ -2473,23 +2440,6 @@ files = [
 ]
 
 [[package]]
-name = "xenon"
-version = "0.9.3"
-description = "Monitor code metrics for Python on your CI server"
-optional = false
-python-versions = "*"
-groups = ["dev"]
-files = [
-    {file = "xenon-0.9.3-py2.py3-none-any.whl", hash = "sha256:6e2c2c251cc5e9d01fe984e623499b13b2140fcbf74d6c03a613fa43a9347097"},
-    {file = "xenon-0.9.3.tar.gz", hash = "sha256:4a7538d8ba08aa5d79055fb3e0b2393c0bd6d7d16a4ab0fcdef02ef1f10a43fa"},
-]
-
-[package.dependencies]
-PyYAML = ">=5.0,<7.0"
-radon = ">=4,<7"
-requests = ">=2.0,<3.0"
-
-[[package]]
 name = "zipp"
 version = "3.21.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -2511,10 +2461,10 @@ test = ["big-O", "importlib-resources ; python_version < \"3.9\"", "jaraco.funct
 type = ["pytest-mypy"]
 
 [extras]
-dev = ["asttokens", "autopep8", "black", "build", "certifi", "coverage", "decorator", "executing", "flake8", "iniconfig", "ipython", "isort", "jedi", "matplotlib-inline", "packaging", "parso", "pexpect", "piccolo-theme", "pluggy", "pre-commit", "prompt-toolkit", "ptyprocess", "pure-eval", "pyfakefs", "pygments", "pytest", "pytest-cov", "pytest-xdist", "python-dotenv", "setuptools", "six", "stack-data", "toml", "traitlets", "twine", "wcwidth"]
+dev = ["asttokens", "autopep8", "black", "build", "certifi", "coverage", "decorator", "executing", "flake8", "homebrew-pypi-poet", "iniconfig", "ipython", "isort", "jedi", "matplotlib-inline", "packaging", "parso", "pexpect", "piccolo-theme", "pluggy", "pre-commit", "prompt-toolkit", "ptyprocess", "pure-eval", "pyfakefs", "pygments", "pytest", "pytest-cov", "pytest-xdist", "python-dotenv", "setuptools", "six", "stack-data", "toml", "traitlets", "twine", "wcwidth"]
 docs = ["doc8", "rstcheck", "rstcheck-core", "sphinx-rtd-theme", "sphinxcontrib-applehelp", "sphinxcontrib-devhelp", "sphinxcontrib-htmlhelp", "sphinxcontrib-jquery", "sphinxcontrib-jsmath", "sphinxcontrib-qthelp", "sphinxcontrib-serializinghtml"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9"
-content-hash = "2264d1c7638ceb28332000b5236021d4311e063f0cbc2e1dfeee8f37eca7cfe5"
+content-hash = "b73df3ef988abf0b1cb4a1c36f445fa5d8540e6d219dc55c0c35007290fbddbc"
