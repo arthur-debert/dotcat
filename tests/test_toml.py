@@ -1,5 +1,5 @@
 import pytest
-from dotcat import run
+from dotcat.cli import run
 import sys
 from io import StringIO
 

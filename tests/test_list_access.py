@@ -1,6 +1,6 @@
 import pytest
 import yaml
-from dotcat.dotcat import access_list, from_attr_chain
+from dotcat.data_access import access_list, from_attr_chain
 
 
 @pytest.fixture

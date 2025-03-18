@@ -1,6 +1,7 @@
 from io import StringIO
 import sys
-from dotcat import run, HELP
+from dotcat.cli import run
+from dotcat.help_text import HELP
 from dotcat.__version__ import __version__
 
 import pytest

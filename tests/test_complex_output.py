@@ -1,6 +1,6 @@
 import pytest
 import yaml
-from dotcat.dotcat import format_output
+from dotcat.output_formatters import format_output
 
 
 @pytest.fixture
