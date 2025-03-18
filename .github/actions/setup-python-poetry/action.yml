@@ -41,9 +41,12 @@ runs:
     - name: Set virtual environment path
       id: venv-path
       shell: bash
+      env:
+        DEFAULT_VENV_PATH: .venv
       run: |
-        echo "venv-path=$(poetry env info -p)" >> "$GITHUB_OUTPUT"
-        echo "venv-activate=$(poetry env info -p)/bin/activate" >> "$GITHUB_OUTPUT"
+        VENV_PATH=$(poetry env info -p || echo "$DEFAULT_VENV_PATH")
+        echo "venv-path=$VENV_PATH" >> "$GITHUB_OUTPUT"
+        echo "venv-activate=$VENV_PATH/bin/activate" >> "$GITHUB_OUTPUT"
 
     - name: Cache virtual environment
       id: cache-venv
@@ -58,7 +61,7 @@ runs:
       if: steps.cache-venv.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        poetry install --no-interaction --no-root --with dev
+        poetry install --no-interaction --no-root -E dev
 
     - name: Sanity check
       shell: bash
