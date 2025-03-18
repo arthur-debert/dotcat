@@ -7,6 +7,9 @@ packages = [{ include = "dotcat", from = "src" }]
 include = ["templates", "template/**", "LICENSE", "README.md", "zsh/**"]
 exclude = ["tests"]
 
+[tool.poetry.group.dev.dependencies]
+xenon = "^0.9.3"
+
 [project]
 version = "0.9.1"
 
