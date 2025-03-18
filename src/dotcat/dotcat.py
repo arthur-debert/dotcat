@@ -20,8 +20,8 @@ from datetime import date, datetime
 import sys
 import os
 import argparse
-from configparser import ConfigParser
 from io import StringIO
+from configparser import ConfigParser
 from typing import Any, Dict, List, Tuple, Union
 
 from .__version__ import __version__
@@ -154,7 +154,6 @@ def parse_ini(file: StringIO) -> Dict[str, Dict[str, str]]:
     Returns:
         The parsed content as a dictionary.
     """
-    from configparser import ConfigParser
 
     config = ConfigParser()
     config.read_file(file)
@@ -237,17 +236,16 @@ def parse_file(filename: str) -> ParsedData:
     parsers = [parser for fmts, parser in FORMATS if ext in fmts]
 
     try:
-        with open(filename, "r") as file:
+        with open(filename, "r", encoding="utf-8") as file:
             content = file.read().strip()
             if not content:
-                raise ValueError("{red('[ERROR]')} {filename}: File is empty")
+                raise ValueError(f"{red('[ERROR]')} {filename}: File is empty")
             for parser in parsers:
                 try:
                     return parser(StringIO(content))
                 except ParseError as e:
                     # Re-raise with filename for better error message
                     raise ValueError(f"{str(e)}")
-                    continue
             msg = "Unsupported file format. Supported formats: JSON, YAML, TOML, INI"
             raise ValueError(f"{msg}")
     except FileNotFoundError:
@@ -339,12 +337,18 @@ def access_list(data: Any, key: str, index: str) -> Any:
 
     Returns:
         The accessed list item or slice.
+
+    Raises:
+        KeyError: If the index is invalid or the data is not a list.
     """
-    if SLICE_SYMBOL in index:
-        start, end = map(lambda x: int(x) if x else None, index.split(SLICE_SYMBOL))
-        return data.get(key)[start:end]
-    else:
-        return data.get(key)[int(index)]
+    try:
+        if SLICE_SYMBOL in index:
+            start, end = map(lambda x: int(x) if x else None, index.split(SLICE_SYMBOL))
+            return data.get(key)[start:end]
+        else:
+            return data.get(key)[int(index)]
+    except (IndexError, TypeError) as e:
+        raise KeyError(f"Invalid index '{index}' for key '{key}': {str(e)}")
 
 
 def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
@@ -358,19 +362,22 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
     Returns:
         The value at the specified nested key, or None if the key doesn't exist.
     """
-    if data is None:
-        chain = lookup_chain.split(".")[0]
-        raise KeyError(f"key '{chain}' not found")
+    keys = lookup_chain.split(".")
     found_keys = []
-    for key in lookup_chain.split("."):
+
+    if data is None:
+        chain = keys[0]
+        raise KeyError(f"key '{chain}' not found")
+
+    for key in keys:
         if LIST_ACCESS_SYMBOL in key:
             key, index = key.split(LIST_ACCESS_SYMBOL)
             data = access_list(data, key, index)
         else:
             data = data.get(key)
         if data is None:
-            ".".join(found_keys)
-            raise KeyError(f"key '{key}' not found")
+            full_path = ".".join(found_keys + [key])
+            raise KeyError(f"key '{key}' not found in path '{full_path}'")
         found_keys.append(key)
     return data
 
@@ -452,6 +459,17 @@ def is_likely_dot_path(arg: str) -> bool:
     return False
 
 
+def check_install():
+    """
+    Checks if all required packages are installed.
+
+    Returns:
+        None
+    """
+    print("Dotcat is good to go.")
+    return
+
+
 def run(args: List[str] = None) -> None:
     """
     Processes the command-line arguments and prints the value from the structured data file.
@@ -521,7 +539,7 @@ def run(args: List[str] = None) -> None:
         sys.exit(3)  # File not found
     except ValueError as e:
         if "File is empty" in str(e):
-            print(f"File is empty: {red(filename)}")
+            print(f"{red('[ERROR]')} {filename}: File is empty")
         elif "Unable to parse file" in str(e):
             print(f"Unable to parse file: {red(filename)}")
         else:
@@ -543,11 +561,6 @@ def main() -> None:
     The main entry point of the script.
     """
     run(sys.argv[1:])
-
-
-def check_install():
-    print("Dotcat is good to go.")
-    return
 
 
 if __name__ == "__main__":
