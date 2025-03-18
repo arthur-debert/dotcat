@@ -3,7 +3,7 @@
 This script reads values, including nested values, from structured data files (JSON, YAML, TOML, INI).
 
 Usage:
-    dotcat <file> <dot_separated_key>
+    dotcat <file> <dotted-path>
 
 Example:
     dotcat config.json python.editor.tabSize
@@ -75,14 +75,27 @@ def red(text: str) -> str:
 
 USAGE = f"""
 {bold('dotcat')}
+Read values from structured data files (JSON, YAML, TOML, INI)
+
+  Usage: dotcat <file> <dotted-path>
+
+    <file>          The input file (JSON, YAML, TOML, INI).
+    <dotted-path>   The dotted path to the desired data (e.g., project.authors).
+
+  See `dotcat --help` for more information.
+"""
+
+HELP = f"""
+{bold('dotcat')}
 Read values, including nested values, from structured data files (JSON, YAML, TOML, INI)
 
 {bold('USAGE:')}
-dotcat <file> <dot_separated_key>
+  dotcat <file> <dotted-path>
 
-{bold('EXAMPLE:')}
-dotcat config.json python.editor.tabSize
-dotcat somefile.toml a.b.c
+{bold('EXAMPLES:')}
+  dotcat config.json python.editor.tabSize
+  dotcat somefile.toml a.b.c
+  dotcat package.json dependencies.react
 """
 
 ######################################################################
@@ -299,8 +312,8 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
     Accesses a nested dictionary value with an attribute chain encoded by a dot-separated string.
 
     Args:
-        adict: The dictionary to access.
-        lookup_path: The dot-separated string representing the nested keys.
+        data: The dictionary to access.
+        lookup_chain: The dotted-path string representing the nested keys.
 
     Returns:
         The value at the specified nested key, or None if the key doesn't exist.
@@ -329,26 +342,31 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
 
 def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
     """
-    Returns the filename, lookup chain, output format, and check_install flag.
+    Returns the filename, dotted-path, output format, and check_install flag.
 
     Args:
         args: The list of command-line arguments.
 
     Returns:
-        The filename, lookup chain, output format, and check_install flag.
+        The filename, dotted-path, output format, and check_install flag.
     """
     # Handle help commands
-    if args is None or len(args) == 0 or args == ["help"] or args == ["--help"]:
-        print(USAGE)
+    if args is None or len(args) == 0:
+        print(HELP)  # Show help for no arguments
+        sys.exit(0)
+
+    # Handle explicit help requests
+    if "help" in args or "-h" in args or "--help" in args:
+        print(HELP)  # Show help for help requests
         sys.exit(0)
 
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("file", type=str, nargs="?", help="The file to read from")
     parser.add_argument(
-        "dot_separated_key",
+        "dotted_path",
         type=str,
         nargs="?",
-        help="The dot-separated key to look up",
+        help="The dotted-path to look up",
     )
     parser.add_argument(
         "--output",
@@ -365,7 +383,7 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
     parsed_args = parser.parse_args(args)
     return (
         parsed_args.file,
-        parsed_args.dot_separated_key,
+        parsed_args.dotted_path,
         parsed_args.output,
         parsed_args.check_install,
     )
@@ -373,7 +391,7 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
 
 def is_likely_dot_path(arg: str) -> bool:
     """
-    Determines if an argument is likely a dot path rather than a file path.
+    Determines if an argument is likely a dotted-path rather than a file path.
 
     Args:
         arg: The argument to check.
@@ -402,8 +420,8 @@ def run(args: List[str] = None) -> None:
         check_install()
         return
 
-    # Special case: If we have only one argument and it looks like a dot path,
-    # treat it as the dot path rather than the file
+    # Special case: If we have only one argument and it looks like a dotted-path,
+    # treat it as the dotted-path rather than the file
     if filename is not None and lookup_chain is None and len(args) == 1:
         if is_likely_dot_path(filename):
             # Swap the arguments
@@ -414,25 +432,25 @@ def run(args: List[str] = None) -> None:
     # Handle cases where one of the required arguments is missing
     if lookup_chain is None or filename is None:
         if filename is not None and lookup_chain is None:
-            # Case 1: File is provided but dot pattern is missing
+            # Case 1: File is provided but dotted-path is missing
             try:
                 if os.path.exists(filename):
-                    # File exists, but dot pattern is missing
+                    # File exists, but dotted-path is missing
                     print(
-                        f"{red('Dot')} path required. {red('Which')} value do you want me to look up in {filename}?"
+                        f"Dotted-path required. Which value do you want me to look up in {filename}?"
                     )
-                    print(f"\n$dotcat {filename} {red('<pattern>')}")
+                    print(f"\n$dotcat {filename} {red('<dotted-path>')}")
                     sys.exit(2)  # Invalid usage
             except Exception:
                 # If there's any error checking the file, fall back to general usage message
                 pass
         elif filename is None and lookup_chain is not None:
-            # Case 2: Dot pattern is provided but file is missing
-            # Check if the argument looks like a dot path (contains dots)
+            # Case 2: Dotted-path is provided but file is missing
+            # Check if the argument looks like a dotted-path (contains dots)
             if "." in lookup_chain:
-                # It looks like a dot path, so assume the file is missing
+                # It looks like a dotted-path, so assume the file is missing
                 print(
-                    f"{red('File')} path required. {red('Which')} file contains the value at {lookup_chain}?"
+                    f"File path required. Which file contains the value at {lookup_chain}?"
                 )
                 print(f"\n$dotcat {red('<file>')} {lookup_chain}")
                 sys.exit(2)  # Invalid usage
@@ -440,7 +458,7 @@ def run(args: List[str] = None) -> None:
             # so fall back to the general usage message
 
         # General usage message for other cases
-        print(USAGE)
+        print(USAGE)  # Display usage for invalid arguments
         sys.exit(2)  # Invalid usage
 
     # gets the parsed data

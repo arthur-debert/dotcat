@@ -1,6 +1,6 @@
 from io import StringIO
 import sys
-from dotcat import run
+from dotcat import run, HELP
 
 import pytest
 
@@ -19,17 +19,7 @@ def test_no_arguments():
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         run(test_args)
     sys.stdout = sys.__stdout__
-    expected_output = """
-dotcat
-Read values, including nested values, from structured data files (JSON, YAML, TOML, INI)
-
-USAGE:
-dotcat <file> <dot_separated_key>
-
-EXAMPLE:
-dotcat config.json python.editor.tabSize
-dotcat somefile.toml a.b.c
-""".strip()
+    expected_output = remove_ansi_escape_sequences(HELP.strip())
     actual_output = remove_ansi_escape_sequences(captured_output.getvalue().strip())
     assert actual_output == expected_output
     assert pytest_wrapped_e.type == SystemExit
@@ -125,9 +115,9 @@ def test_file_without_dot_pattern():
     sys.stdout = sys.__stdout__
     actual_output = remove_ansi_escape_sequences(captured_output.getvalue().strip())
     # Check that the output contains the specific file name and guidance
-    assert "Dot path required" in actual_output
+    assert "Dotted-path required" in actual_output
     assert "tests/fixtures/test.json" in actual_output
-    assert "<pattern>" in actual_output
+    assert "<dotted-path>" in actual_output
     assert pytest_wrapped_e.type == SystemExit
     assert pytest_wrapped_e.value.code == 2
 
@@ -154,17 +144,7 @@ def test_help_command():
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         run(test_args)
     sys.stdout = sys.__stdout__
-    expected_output = """
-dotcat
-Read values, including nested values, from structured data files (JSON, YAML, TOML, INI)
-
-USAGE:
-dotcat <file> <dot_separated_key>
-
-EXAMPLE:
-dotcat config.json python.editor.tabSize
-dotcat somefile.toml a.b.c
-""".strip()
+    expected_output = remove_ansi_escape_sequences(HELP.strip())
     actual_output = remove_ansi_escape_sequences(captured_output.getvalue().strip())
     assert actual_output == expected_output
     assert pytest_wrapped_e.type == SystemExit
@@ -178,17 +158,7 @@ def test_help_flag():
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         run(test_args)
     sys.stdout = sys.__stdout__
-    expected_output = """
-dotcat
-Read values, including nested values, from structured data files (JSON, YAML, TOML, INI)
-
-USAGE:
-dotcat <file> <dot_separated_key>
-
-EXAMPLE:
-dotcat config.json python.editor.tabSize
-dotcat somefile.toml a.b.c
-""".strip()
+    expected_output = remove_ansi_escape_sequences(HELP.strip())
     actual_output = remove_ansi_escape_sequences(captured_output.getvalue().strip())
     assert actual_output == expected_output
     assert pytest_wrapped_e.type == SystemExit

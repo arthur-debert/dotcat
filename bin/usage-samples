@@ -1,0 +1,40 @@
+#! /usr/bin/env bash
+
+# Don't exit on error
+set +e
+
+## this files just collects all possible outputs for regular and errors so
+## that we can test the output of the program
+
+# Function to indent each line of input by 4 spaces
+function indent() {
+	sed 's/^/  /'
+}
+
+function run_command() {
+	local description="$2"
+	echo ""
+	echo -e "\033[1m$description: \033[0m"
+	echo ""
+	eval "$1" | indent
+	echo ""
+}
+
+run_command "dotcat" "no arguments, quick usage"
+
+run_command "dotcat --help" "--help"
+
+run_command "dotcat help" "help"
+
+run_command "dotcat pyproject.toml project.authors" "correct usage, both file exists and keys is found"
+
+run_command "dotcat pyproject.toml" "missing dotted-path"
+
+run_command "dotcat project.authors" "missing file"
+
+run_command "dotcat nothere.toml project.authors" "no such file"
+
+run_command "dotcat pyproject.toml project.nothere" "missing dotted-path"
+
+# Reset exit behavior
+set -e
