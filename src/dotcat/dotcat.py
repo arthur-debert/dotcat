@@ -220,7 +220,7 @@ def parse_file(filename: str) -> ParsedData:
             msg = "Unsupported file format. Supported formats: JSON, YAML, TOML, INI"
             raise ValueError(f"{red('[ERROR]')} {filename}: {msg}")
     except FileNotFoundError:
-        raise FileNotFoundError(f"{red('[ERROR]')} {filename}: File not found")
+        raise FileNotFoundError(f"File not found: {red(filename)}")
     except Exception as e:
         raise ValueError(f"{red('[ERROR]')} {filename}: Unable to parse file: {str(e)}")
 
@@ -320,7 +320,7 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
     """
     if data is None:
         chain = lookup_chain.split(".")[0]
-        raise KeyError(f"{red('[ERROR]')} key '{chain}' not found in {italics('')}")
+        raise KeyError(f"key '{chain}' not found")
     found_keys = []
     for key in lookup_chain.split("."):
         if LIST_ACCESS_SYMBOL in key:
@@ -329,8 +329,8 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
         else:
             data = data.get(key)
         if data is None:
-            keys = ".".join(found_keys)
-            raise KeyError(f"{red('[ERROR]')} key '{red(key)}' not found in {keys}")
+            ".".join(found_keys)
+            raise KeyError(f"key '{key}' not found")
         found_keys.append(key)
     return data
 
@@ -465,7 +465,7 @@ def run(args: List[str] = None) -> None:
     try:
         data = parse_file(filename)
     except FileNotFoundError as e:
-        print(red(str(e)))
+        print(str(e))
         sys.exit(3)  # File not found
     except ValueError as e:
         print(red(str(e)))
@@ -476,7 +476,8 @@ def run(args: List[str] = None) -> None:
         value = from_attr_chain(data, lookup_chain)
         print(format_output(value, output_format))
     except KeyError as e:
-        print(f"{red('[ERROR]')} {filename}: " + e.args[0].strip('"'))
+        key = e.args[0].split("'")[1] if "'" in e.args[0] else e.args[0]
+        print(f"Key {red(key)} not found in {filename}")
         sys.exit(5)  # Key not found
 
 
