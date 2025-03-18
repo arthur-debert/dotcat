@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 packages = [{ include = "dotcat", from = "src" }]
-include = ["templates", "template/**", "LICENSE", "README.md"]
+include = ["templates", "template/**", "LICENSE", "README.md", "zsh/**"]
 exclude = ["tests"]
 
 [project]
