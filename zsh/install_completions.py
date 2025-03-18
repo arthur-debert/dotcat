@@ -69,13 +69,12 @@ def install_completions():
         print("ZSH not found. Skipping completion installation.")
         return
 
-    # Get the package installation directory
-    package_dir = os.path.dirname(os.path.abspath(__file__))
+    # Get the directory where this script is located (zsh/)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # Path to the completion files
-    completion_dir = os.path.join(os.path.dirname(os.path.dirname(package_dir)), "zsh")
-    completion_script = os.path.join(completion_dir, "_dotcat")
-    helper_script = os.path.join(completion_dir, "dotcat-completion.py")
+    # Path to the completion files (already in the zsh directory)
+    completion_script = os.path.join(script_dir, "_dotcat")
+    helper_script = os.path.join(script_dir, "dotcat-completion.py")
 
     if not os.path.exists(completion_script):
         print(
@@ -89,7 +88,7 @@ def install_completions():
         print(
             "No suitable zsh completion directory found. Please install completions manually."
         )
-        print(f"Completion files are located at: {completion_dir}")
+        print(f"Completion files are located at: {script_dir}")
         return
 
     # Install the completion script
@@ -133,7 +132,7 @@ def install_completions():
                 print(f"Please install the helper script manually from {helper_script}")
     except (OSError, PermissionError) as e:
         print(f"Error installing completions: {e}")
-        print(f"Please install completions manually from {completion_dir}")
+        print(f"Please install completions manually from {script_dir}")
 
 
 def main():
