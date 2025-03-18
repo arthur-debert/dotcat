@@ -79,7 +79,8 @@ docs = [
 
 [project.scripts]
 dotcat = "dotcat:main"
-
+install-dotcat-completions = "dotcat.install_completions:main"
+dotcat-install-completions = "dotcat.install_completions:main"
 
 [tool.pytest.ini_options]
 addopts = "-ra -q"

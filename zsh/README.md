@@ -2,7 +2,7 @@
 
 This directory contains ZSH completion scripts for the `dotcat` command.
 
-These completion files are included when you install the dotcat package.
+These completion files are included when you install the dotcat package and are automatically installed during the pip installation process.
 
 ## Files
 
@@ -10,61 +10,17 @@ These completion files are included when you install the dotcat package.
 - `dotcat-completion.py` - Python helper script for extracting dotted paths
 - `test-completion.zsh` - Script for testing the completion locally
 
-## Quick Installation
+## Automatic Installation
 
-1. Copy the completion script to a directory in your $fpath:
+When you install dotcat using pip, the completion files are automatically installed to an appropriate location on your system. The installation script:
 
-```bash
-# Create completion directory if it doesn't exist
-mkdir -p ~/.zsh/completions
+1. Looks for common ZSH completion directories
+2. Installs the completion files if possible
+3. Notifies you of the installation location
 
-# Copy the completion script
-cp zsh/_dotcat ~/.zsh/completions/_dotcat
+If the automatic installation fails, you can manually install the completions using the instructions below or run `dotcat-install-completions` to try again.
 
-# Make sure the directory is in your fpath
-echo 'fpath=(~/.zsh/completions $fpath)' >> ~/.zshrc
-```
-
-2. Install the Python helper script:
-
-```bash
-# Copy to a directory in your PATH
-mkdir -p ~/bin
-cp zsh/dotcat-completion.py ~/bin/
-chmod +x ~/bin/dotcat-completion.py
-
-# Make sure the directory is in your PATH
-echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
-```
-
-3. Reload your ZSH configuration:
-
-```bash
-source ~/.zshrc
-```
-
-## Testing
-
-You can test the completion by typing:
-
-```bash
-# Test file completion
-dotcat [TAB]
-
-# Test dotted path completion
-dotcat path/to/file.json [TAB]
-
-# Test nested path completion
-dotcat path/to/file.json python[TAB]
-```
-
-For local testing without installation, use the test script:
-
-```bash
-./zsh/test-completion.zsh
-```
-
-## Detailed Installation Guide
+## Manual Installation
 
 ### Step 1: Choose a directory in your $fpath
 
@@ -123,6 +79,27 @@ source ~/.zshrc
 ```
 
 Or restart your terminal.
+
+## Testing
+
+You can test the completion by typing:
+
+```bash
+# Test file completion
+dotcat [TAB]
+
+# Test dotted path completion
+dotcat path/to/file.json [TAB]
+
+# Test nested path completion
+dotcat path/to/file.json python[TAB]
+```
+
+For local testing without installation, use the test script:
+
+```bash
+./zsh/test-completion.zsh
+```
 
 ## Troubleshooting
 

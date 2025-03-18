@@ -47,12 +47,21 @@ pip install dotcat
 
 ## ZSH Completion
 
-Dotcat comes with ZSH completion support. After installing the package, you can set up the completion by:
+Dotcat comes with ZSH completion support that is automatically installed when you install the package with pip. The installation script will:
+
+1. Look for appropriate ZSH completion directories
+2. Install the completion files if possible
+3. Notify you of the installation location
+
+If the automatic installation fails, you can manually install the completions:
 
 ```bash
 # Copy the completion script to your ZSH completions directory
 mkdir -p ~/.zsh/completions
 cp /path/to/installed/package/zsh/_dotcat ~/.zsh/completions/
+
+# Or run the installation script directly
+dotcat-install-completions
 ```
 
 See the [ZSH completion README](zsh/README.md) for detailed instructions.
