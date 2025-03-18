@@ -41,18 +41,15 @@ runs:
     - name: Set virtual environment path
       id: venv-path
       shell: bash
-      env:
-        VENV: .venv/bin/activate
       run: |
-        echo "venv-path=.venv" >> "$GITHUB_OUTPUT"
-        echo "venv-activate=.venv/bin/activate" >> "$GITHUB_OUTPUT"
+        echo "venv-path=$(poetry env info -p)" >> "$GITHUB_OUTPUT"
+        echo "venv-activate=$(poetry env info -p)/bin/activate" >> "$GITHUB_OUTPUT"
 
     - name: Cache virtual environment
       id: cache-venv
       uses: actions/cache@v3
-      if: steps.venv-path.outputs.venv-path != ''
       with:
-        path: .venv
+        path: ${{ steps.venv-path.outputs.venv-path }}
         key: ${{ inputs.cache-key-prefix }}-${{ runner.os }}-venv-${{ inputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
           ${{ inputs.cache-key-prefix }}-${{ runner.os }}-venv-${{ inputs.python-version }}-
@@ -60,13 +57,8 @@ runs:
     - name: Install dependencies
       if: steps.cache-venv.outputs.cache-hit != 'true'
       shell: bash
-      env:
-        PYTHON_VERSION: ${{ inputs.python-version }}
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install poetry
-        poetry config virtualenvs.in-project true
-        poetry install --no-interaction --with dev
+        poetry install --no-interaction --no-root --with dev
 
     - name: Sanity check
       shell: bash
