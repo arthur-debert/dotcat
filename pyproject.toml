@@ -22,7 +22,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 urls = { "Homepage" = "https://github.com/arthur-debert/dotcat" }
-dependencies = ["pyyaml>=6.0.2"]
+dependencies = ["pyyaml>=6.0.2", "exceptiongroup>=1.1.0"]
 
 [project.optional-dependencies]
 dev = [
