@@ -97,16 +97,6 @@ def test_argument_parsing_ini_output():
     assert actual_output.startswith("[default]")
 
 
-def test_check_install():
-    test_args = ["--check-install"]
-    captured_output = StringIO()
-    sys.stdout = captured_output
-    run(test_args)
-    sys.stdout = sys.__stdout__
-    actual_output = captured_output.getvalue().strip()
-    assert actual_output == "Dotcat is good to go."
-
-
 def test_version_flag():
     test_args = ["--version"]
     captured_output = StringIO()

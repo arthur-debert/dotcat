@@ -389,13 +389,13 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
 
 def parse_args(args: List[str]) -> Tuple[str, str, str, bool, bool]:
     """
-    Returns the filename, dotted-path, output format, and check_install flag.
+    Returns the filename, dotted-path, output format, and version flag.
 
     Args:
         args: The list of command-line arguments.
 
     Returns:
-        The filename, dotted-path, output format, check_install flag, and version flag.
+        The filename, dotted-path, output format, and version flag.
     """
     # Handle help commands
     if args is None or len(args) == 0:
@@ -422,11 +422,6 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool, bool]:
         help="The output format (raw, formatted, json, yaml, toml, ini)",
     )
     parser.add_argument(
-        "--check-install",
-        action="store_true",
-        help="Check if required packages are installed",
-    )
-    parser.add_argument(
         "--version",
         action="store_true",
         help="Show version information",
@@ -437,7 +432,6 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool, bool]:
         parsed_args.file,
         parsed_args.dotted_path,
         parsed_args.output,
-        parsed_args.check_install,
         parsed_args.version,
     )
 
@@ -459,17 +453,6 @@ def is_likely_dot_path(arg: str) -> bool:
     return False
 
 
-def check_install():
-    """
-    Checks if all required packages are installed.
-
-    Returns:
-        None
-    """
-    print("Dotcat is good to go.")
-    return
-
-
 def run(args: List[str] = None) -> None:
     """
     Processes the command-line arguments and prints the value from the structured data file.
@@ -478,13 +461,7 @@ def run(args: List[str] = None) -> None:
         args: The list of command-line arguments.
     """
     # validates arguments
-    filename, lookup_chain, output_format, check_install_flag, version_flag = (
-        parse_args(args)
-    )
-
-    if check_install_flag:
-        check_install()
-        return
+    filename, lookup_chain, output_format, version_flag = parse_args(args)
 
     if version_flag:
         print(f"dotcat version {__version__}")
