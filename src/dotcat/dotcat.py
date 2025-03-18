@@ -82,21 +82,49 @@ Read values from structured data files (JSON, YAML, TOML, INI)
     <file>          The input file (JSON, YAML, TOML, INI).
     <dotted-path>   The dotted path to the desired data (e.g., project.authors).
 
+{bold('EXAMPLES:')}
+  dotcat config.json python.editor.tabSize
+  dotcat pyproject.toml project.version
+  dotcat package.json dependencies.react
+
   See `dotcat --help` for more information.
 """
 
-HELP = f"""
+HELP_CORE = f"""
 {bold('dotcat')}
+
 Read values, including nested values, from structured data files (JSON, YAML, TOML, INI)
 
 {bold('USAGE:')}
-  dotcat <file> <dotted-path>
+    dotcat <file> <dotted-path>
 
-{bold('EXAMPLES:')}
-  dotcat config.json python.editor.tabSize
-  dotcat somefile.toml a.b.c
-  dotcat package.json dependencies.react
+{bold('EXAMPLES:')}"""
+
+HELP_EXAMPLE = """
+    # Access data by attribute path
+    dotcat data.json person.name.first
+    # John
+    dotcat data.json person.name.last
+    # Doe
+
+    # Controle your output format
+    dotcat data.json person.name --output=yaml
+    # name:
+    #   first: John
+    #   last: Doe
+    dotcat data.json person.name --output=json
+    # {"first": "John", "last": "Doe"}
+
+    # List access
+    dotcat data.json person.friends@0
+    # {"name":{"first": "Alice", "last": "Smith"}, "age": 25} -> item access
+    dotcat data.json person.friends@2:4
+    # [{"name":{"first": "Alice", "last": "Smith"}, "age": 25}, {"name":{"first": "Bob", "last": "Johnson"}, "age": 30}]  -> slice access
+    dotcat data.json person.friends@4:-1
+    # ... from 5th to last item
 """
+
+HELP = HELP_CORE + HELP_EXAMPLE
 
 ######################################################################
 # Parsing functions
