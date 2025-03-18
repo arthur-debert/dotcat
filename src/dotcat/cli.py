@@ -5,14 +5,12 @@ Command-line interface functions for dotcat.
 import sys
 import os
 import argparse
-from typing import List, Tuple, Any
+from typing import List, Tuple
 
 from .__version__ import __version__
 from .formatting import red
 from .help_text import HELP, USAGE
-from .parsers import parse_file
-from .output_formatters import format_output
-from .data_access import from_attr_chain
+from .core import is_likely_dot_path, process_file, lookup_value, format_value
 
 
 def handle_version_flag(version_flag: bool) -> bool:
@@ -56,13 +54,16 @@ def handle_special_case_arguments(
     return filename, lookup_chain
 
 
-def validate_required_arguments(filename: str, lookup_chain: str) -> None:
+def validate_required_arguments(
+    filename: str, lookup_chain: str, args: List[str]
+) -> None:
     """
     Validate that the required arguments are present.
 
     Args:
         filename: The filename argument.
         lookup_chain: The dotted-path argument.
+        args: The original command-line arguments.
 
     Raises:
         SystemExit: If required arguments are missing.
@@ -99,52 +100,33 @@ def validate_required_arguments(filename: str, lookup_chain: str) -> None:
         sys.exit(2)  # Invalid usage
 
 
-def process_file(filename: str) -> Any:
+def process_and_display_result(
+    filename: str, lookup_chain: str, output_format: str
+) -> None:
     """
-    Parse the file and handle any errors.
+    Process the file, look up the value, and display the result.
 
     Args:
-        filename: The file to parse.
-
-    Returns:
-        The parsed data.
+        filename: The file to process.
+        lookup_chain: The dotted-path to look up.
+        output_format: The output format.
 
     Raises:
-        SystemExit: If there's an error parsing the file.
+        SystemExit: If there's an error processing the file or looking up the value.
     """
     try:
-        return parse_file(filename)
+        data = process_file(filename)
     except FileNotFoundError as e:
         print(str(e))
         sys.exit(3)  # File not found
     except ValueError as e:
-        if "File is empty" in str(e):
-            print(f"{red('[ERROR]')} {filename}: File is empty")
-        elif "Unable to parse file" in str(e):
-            print(f"Unable to parse file: {red(filename)}")
-        else:
-            print(f"{str(e)}: {red(filename)}")
+        print(str(e))
         sys.exit(4)  # Parsing error
 
-
-def lookup_and_format_value(
-    data: Any, lookup_chain: str, output_format: str, filename: str
-) -> None:
-    """
-    Look up the value using the dotted-path and format the output.
-
-    Args:
-        data: The parsed data.
-        lookup_chain: The dotted-path to look up.
-        output_format: The output format.
-        filename: The filename (for error messages).
-
-    Raises:
-        SystemExit: If the key is not found.
-    """
     try:
-        value = from_attr_chain(data, lookup_chain)
-        print(format_output(value, output_format))
+        value = lookup_value(data, lookup_chain)
+        formatted_value = format_value(value, output_format)
+        print(formatted_value)
     except KeyError as e:
         key = e.args[0].split("'")[1] if "'" in e.args[0] else e.args[0]
         print(f"Key {red(key)} not found in {filename}")
@@ -200,23 +182,6 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
     )
 
 
-def is_likely_dot_path(arg: str) -> bool:
-    """
-    Determines if an argument is likely a dotted-path rather than a file path.
-
-    Args:
-        arg: The argument to check.
-
-    Returns:
-        True if the argument is likely a dot path, False otherwise.
-    """
-    # If it contains dots and doesn't look like a file path
-    if "." in arg and not os.path.exists(arg):
-        # Check if it has multiple segments separated by dots
-        return len(arg.split(".")) > 1
-    return False
-
-
 def run(args: List[str] = None) -> None:
     """
     Processes the command-line arguments and prints the value from the structured data file.
@@ -234,14 +199,11 @@ def run(args: List[str] = None) -> None:
     # Handle special case arguments
     filename, lookup_chain = handle_special_case_arguments(filename, lookup_chain, args)
 
-    # Validate required arguments
-    validate_required_arguments(filename, lookup_chain)
+    # Validate required arguments (passing args for context)
+    validate_required_arguments(filename, lookup_chain, args)
 
-    # Parse the file
-    data = process_file(filename)
-
-    # Look up and format the value
-    lookup_and_format_value(data, lookup_chain, output_format, filename)
+    # Process the file, look up the value, and display the result
+    process_and_display_result(filename, lookup_chain, output_format)
 
 
 def main() -> None:
