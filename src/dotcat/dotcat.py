@@ -141,9 +141,7 @@ def parse_yaml(file: StringIO) -> ParsedData:
     try:
         return yaml.safe_load(file)
     except yaml.YAMLError as e:
-        raise ParseError(
-            f"{red('[ERROR]')} {file.name}: Unable to parse YAML file: {str(e)}"
-        )
+        raise ParseError(f"Unable to parse YAML file: {str(e)}")
 
 
 def parse_json(file: StringIO) -> ParsedData:
@@ -161,9 +159,7 @@ def parse_json(file: StringIO) -> ParsedData:
     try:
         return json.load(file)
     except json.JSONDecodeError as e:
-        raise ParseError(
-            f"{red('[ERROR]')} {file.name}: Unable to parse JSON file: {str(e)}"
-        )
+        raise ParseError(f"Unable to parse JSON file: {str(e)}")
 
 
 def parse_toml(file: StringIO) -> ParsedData:
@@ -181,9 +177,7 @@ def parse_toml(file: StringIO) -> ParsedData:
     try:
         return toml.load(file)
     except toml.TomlDecodeError as e:
-        raise ParseError(
-            f"{red('[ERROR]')} {file.name}: Unable to parse TOML file: {str(e)}"
-        )
+        raise ParseError(f"Unable to parse TOML file: {str(e)}")
 
 
 FORMATS = [
@@ -211,18 +205,29 @@ def parse_file(filename: str) -> ParsedData:
         with open(filename, "r") as file:
             content = file.read().strip()
             if not content:
-                raise ValueError(f"{red('[ERROR]')} {filename}: File is empty")
+                raise ValueError("{red('[ERROR]')} {filename}: File is empty")
             for parser in parsers:
                 try:
                     return parser(StringIO(content))
-                except ParseError:
+                except ParseError as e:
+                    # Re-raise with filename for better error message
+                    raise ValueError(f"{str(e)}")
                     continue
             msg = "Unsupported file format. Supported formats: JSON, YAML, TOML, INI"
-            raise ValueError(f"{red('[ERROR]')} {filename}: {msg}")
+            raise ValueError(f"{msg}")
     except FileNotFoundError:
         raise FileNotFoundError(f"File not found: {red(filename)}")
     except Exception as e:
-        raise ValueError(f"{red('[ERROR]')} {filename}: Unable to parse file: {str(e)}")
+        # Capture the original error message
+        error_msg = str(e)
+        if (
+            "JSONDecodeError" in error_msg
+            or "YAMLError" in error_msg
+            or "TomlDecodeError" in error_msg
+        ):
+            raise ValueError("Unable to parse file")
+        else:
+            raise ValueError(f"Unable to parse file: {error_msg}")
 
 
 ######################################################################
@@ -468,7 +473,12 @@ def run(args: List[str] = None) -> None:
         print(str(e))
         sys.exit(3)  # File not found
     except ValueError as e:
-        print(red(str(e)))
+        if "File is empty" in str(e):
+            print(f"File is empty: {red(filename)}")
+        elif "Unable to parse file" in str(e):
+            print(f"Unable to parse file: {red(filename)}")
+        else:
+            print(f"{str(e)}: {red(filename)}")
         sys.exit(4)  # Parsing error
 
     # get the value at the specified key

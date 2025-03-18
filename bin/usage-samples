@@ -36,5 +36,7 @@ run_command "dotcat nothere.toml project.authors" "no such file"
 
 run_command "dotcat pyproject.toml project.nothere" "missing dotted-path"
 
+run_command "dotcat tests/fixtures/malformed.json python.editor.tabSize" "malformed file"
+
 # Reset exit behavior
 set -e
