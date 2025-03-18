@@ -90,38 +90,36 @@ Read values from structured data files (JSON, YAML, TOML, INI)
   See `dotcat --help` for more information.
 """
 
-HELP_CORE = f"""
-{bold('dotcat')}
+HELP_CORE = (
+    USAGE
+    + f"""
 
-Read values, including nested values, from structured data files (JSON, YAML, TOML, INI)
-
-{bold('USAGE:')}
-    dotcat <file> <dotted-path>
-
-{bold('EXAMPLES:')}"""
+{bold('MORE:')}"""
+)
 
 HELP_EXAMPLE = """
     # Access data by attribute path
     dotcat data.json person.name.first
+
     # John
-    dotcat data.json person.name.last
-    # Doe
+    dotcat data.json person.name.last # Doe
 
     # Controle your output format
     dotcat data.json person.name --output=yaml
+
     # name:
     #   first: John
     #   last: Doe
     dotcat data.json person.name --output=json
     # {"first": "John", "last": "Doe"}
-
     # List access
     dotcat data.json person.friends@0
+
     # {"name":{"first": "Alice", "last": "Smith"}, "age": 25} -> item access
     dotcat data.json person.friends@2:4
+
     # [{"name":{"first": "Alice", "last": "Smith"}, "age": 25}, {"name":{"first": "Bob", "last": "Johnson"}, "age": 30}]  -> slice access
     dotcat data.json person.friends@4:-1
-    # ... from 5th to last item
 """
 
 HELP = HELP_CORE + HELP_EXAMPLE
