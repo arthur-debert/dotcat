@@ -3,6 +3,7 @@ Parsing functions for different file formats.
 """
 
 import os
+import tomllib
 from io import StringIO
 from configparser import ConfigParser
 from typing import Any, Dict, List, Union
@@ -80,11 +81,11 @@ def parse_toml(file: StringIO) -> ParsedData:
     Returns:
         The parsed content.
     """
-    import toml
 
     try:
-        return toml.load(file)
-    except toml.TomlDecodeError as e:
+        # tomllib requires bytes input, so we need to encode the string
+        return tomllib.loads(file.read())
+    except tomllib.TOMLDecodeError as e:
         raise ParseError(f"Unable to parse TOML file: {str(e)}")
 
 
@@ -130,7 +131,7 @@ def parse_file(filename: str) -> ParsedData:
         if (
             "JSONDecodeError" in error_msg
             or "YAMLError" in error_msg
-            or "TomlDecodeError" in error_msg
+            or "TOMLDecodeError" in error_msg
         ):
             raise ValueError("Unable to parse file")
         else:

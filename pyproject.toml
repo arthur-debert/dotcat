@@ -13,7 +13,7 @@ version = "0.9.4"
 name = "dotcat"
 readme = { file = "README.md", content-type = "text/markdown" }
 description = "Cat structured data , in style"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Arthur Debert", email = "arthur@debert.xzy" }]
 classifiers = [
@@ -27,7 +27,6 @@ dependencies = ["pyyaml>=6.0.2"]
 [project.optional-dependencies]
 dev = [
     "homebrew-pypi-poet>=0.10.0",
-    "toml>=0.10.2",
     "build>=1.2.2.post1",
     "asttokens>=2.4.1",
     "certifi>=2024.6.2",

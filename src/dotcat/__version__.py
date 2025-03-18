@@ -1,6 +1,6 @@
 from importlib import metadata
 import pathlib
-import toml
+import tomllib
 
 
 def get_version_from_toml():
@@ -20,7 +20,7 @@ def get_version_from_toml():
 
         if pyproject_path.exists():
             # Parse pyproject.toml using the toml library
-            pyproject_data = toml.load(pyproject_path)
+            pyproject_data = tomllib.load(pyproject_path.open("rb"))
             return pyproject_data.get("project", {}).get("version", "unknown")
     except Exception:
         pass
