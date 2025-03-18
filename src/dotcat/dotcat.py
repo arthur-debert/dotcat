@@ -3,7 +3,7 @@
 This script reads values, including nested values, from structured data files (JSON, YAML, TOML, INI).
 
 Usage:
-    dotcat <file> <dot_separated_key>
+    dotcat <file> <dotted-path>
 
 Example:
     dotcat config.json python.editor.tabSize
@@ -23,6 +23,8 @@ import argparse
 from configparser import ConfigParser
 from io import StringIO
 from typing import Any, Dict, List, Tuple, Union
+
+from .__version__ import __version__
 
 ParsedData = Union[Dict[str, Any], List[Any]]
 
@@ -73,17 +75,63 @@ def red(text: str) -> str:
     return f"\033[31m{text}\033[0m"
 
 
+######################################################################
+# Help text
+######################################################################
+
 USAGE = f"""
 {bold('dotcat')}
-Read values, including nested values, from structured data files (JSON, YAML, TOML, INI)
+Read values from structured data files (JSON, YAML, TOML, INI)
 
-{bold('USAGE:')}
-dotcat <file> <dot_separated_key>
+  Usage: dotcat <file> <dotted-path>
 
-{bold('EXAMPLE:')}
-dotcat config.json python.editor.tabSize
-dotcat somefile.toml a.b.c
+    <file>          The input file (JSON, YAML, TOML, INI).
+    <dotted-path>   The dotted path to the desired data (e.g., project.authors).
+
+{bold('EXAMPLES:')}
+  dotcat config.json python.editor.tabSize
+  dotcat pyproject.toml project.version
+  dotcat package.json dependencies.react
+
+  dotcat --version
+  See `dotcat --help` for more information.
 """
+
+HELP_CORE = (
+    USAGE
+    + f"""
+
+{bold('OPTIONS:')}
+  --version       Show version information
+  --help          Show this help message and exit"""
+)
+
+HELP_EXAMPLE = """
+    # Access data by attribute path
+    dotcat data.json person.name.first
+
+    # John
+    dotcat data.json person.name.last # Doe
+
+    # Controle your output format
+    dotcat data.json person.name --output=yaml
+
+    # name:
+    #   first: John
+    #   last: Doe
+    dotcat data.json person.name --output=json
+    # {"first": "John", "last": "Doe"}
+    # List access
+    dotcat data.json person.friends@0
+
+    # {"name":{"first": "Alice", "last": "Smith"}, "age": 25} -> item access
+    dotcat data.json person.friends@2:4
+
+    # [{"name":{"first": "Alice", "last": "Smith"}, "age": 25}, {"name":{"first": "Bob", "last": "Johnson"}, "age": 30}]  -> slice access
+    dotcat data.json person.friends@4:-1
+"""
+
+HELP = HELP_CORE + HELP_EXAMPLE
 
 ######################################################################
 # Parsing functions
@@ -128,9 +176,7 @@ def parse_yaml(file: StringIO) -> ParsedData:
     try:
         return yaml.safe_load(file)
     except yaml.YAMLError as e:
-        raise ParseError(
-            f"{red('[ERROR]')} {file.name}: Unable to parse YAML file: {str(e)}"
-        )
+        raise ParseError(f"Unable to parse YAML file: {str(e)}")
 
 
 def parse_json(file: StringIO) -> ParsedData:
@@ -148,9 +194,7 @@ def parse_json(file: StringIO) -> ParsedData:
     try:
         return json.load(file)
     except json.JSONDecodeError as e:
-        raise ParseError(
-            f"{red('[ERROR]')} {file.name}: Unable to parse JSON file: {str(e)}"
-        )
+        raise ParseError(f"Unable to parse JSON file: {str(e)}")
 
 
 def parse_toml(file: StringIO) -> ParsedData:
@@ -168,9 +212,7 @@ def parse_toml(file: StringIO) -> ParsedData:
     try:
         return toml.load(file)
     except toml.TomlDecodeError as e:
-        raise ParseError(
-            f"{red('[ERROR]')} {file.name}: Unable to parse TOML file: {str(e)}"
-        )
+        raise ParseError(f"Unable to parse TOML file: {str(e)}")
 
 
 FORMATS = [
@@ -198,18 +240,29 @@ def parse_file(filename: str) -> ParsedData:
         with open(filename, "r") as file:
             content = file.read().strip()
             if not content:
-                raise ValueError(f"{red('[ERROR]')} {filename}: File is empty")
+                raise ValueError("{red('[ERROR]')} {filename}: File is empty")
             for parser in parsers:
                 try:
                     return parser(StringIO(content))
-                except ParseError:
+                except ParseError as e:
+                    # Re-raise with filename for better error message
+                    raise ValueError(f"{str(e)}")
                     continue
             msg = "Unsupported file format. Supported formats: JSON, YAML, TOML, INI"
-            raise ValueError(f"{red('[ERROR]')} {filename}: {msg}")
+            raise ValueError(f"{msg}")
     except FileNotFoundError:
-        raise FileNotFoundError(f"{red('[ERROR]')} {filename}: File not found")
+        raise FileNotFoundError(f"File not found: {red(filename)}")
     except Exception as e:
-        raise ValueError(f"{red('[ERROR]')} {filename}: Unable to parse file: {str(e)}")
+        # Capture the original error message
+        error_msg = str(e)
+        if (
+            "JSONDecodeError" in error_msg
+            or "YAMLError" in error_msg
+            or "TomlDecodeError" in error_msg
+        ):
+            raise ValueError("Unable to parse file")
+        else:
+            raise ValueError(f"Unable to parse file: {error_msg}")
 
 
 ######################################################################
@@ -299,15 +352,15 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
     Accesses a nested dictionary value with an attribute chain encoded by a dot-separated string.
 
     Args:
-        adict: The dictionary to access.
-        lookup_path: The dot-separated string representing the nested keys.
+        data: The dictionary to access.
+        lookup_chain: The dotted-path string representing the nested keys.
 
     Returns:
         The value at the specified nested key, or None if the key doesn't exist.
     """
     if data is None:
         chain = lookup_chain.split(".")[0]
-        raise KeyError(f"{red('[ERROR]')} key '{chain}' not found in {italics('')}")
+        raise KeyError(f"key '{chain}' not found")
     found_keys = []
     for key in lookup_chain.split("."):
         if LIST_ACCESS_SYMBOL in key:
@@ -316,8 +369,8 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
         else:
             data = data.get(key)
         if data is None:
-            keys = ".".join(found_keys)
-            raise KeyError(f"{red('[ERROR]')} key '{red(key)}' not found in {keys}")
+            ".".join(found_keys)
+            raise KeyError(f"key '{key}' not found")
         found_keys.append(key)
     return data
 
@@ -327,28 +380,33 @@ def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
 ######################################################################
 
 
-def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
+def parse_args(args: List[str]) -> Tuple[str, str, str, bool, bool]:
     """
-    Returns the filename, lookup chain, output format, and check_install flag.
+    Returns the filename, dotted-path, output format, and check_install flag.
 
     Args:
         args: The list of command-line arguments.
 
     Returns:
-        The filename, lookup chain, output format, and check_install flag.
+        The filename, dotted-path, output format, check_install flag, and version flag.
     """
     # Handle help commands
-    if args is None or len(args) == 0 or args == ["help"] or args == ["--help"]:
-        print(USAGE)
+    if args is None or len(args) == 0:
+        print(HELP)  # Show help for no arguments
+        sys.exit(0)
+
+    # Handle explicit help requests
+    if "help" in args or "-h" in args or "--help" in args:
+        print(HELP)  # Show help for help requests
         sys.exit(0)
 
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("file", type=str, nargs="?", help="The file to read from")
     parser.add_argument(
-        "dot_separated_key",
+        "dotted_path",
         type=str,
         nargs="?",
-        help="The dot-separated key to look up",
+        help="The dotted-path to look up",
     )
     parser.add_argument(
         "--output",
@@ -361,19 +419,25 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
         action="store_true",
         help="Check if required packages are installed",
     )
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Show version information",
+    )
 
     parsed_args = parser.parse_args(args)
     return (
         parsed_args.file,
-        parsed_args.dot_separated_key,
+        parsed_args.dotted_path,
         parsed_args.output,
         parsed_args.check_install,
+        parsed_args.version,
     )
 
 
 def is_likely_dot_path(arg: str) -> bool:
     """
-    Determines if an argument is likely a dot path rather than a file path.
+    Determines if an argument is likely a dotted-path rather than a file path.
 
     Args:
         arg: The argument to check.
@@ -396,14 +460,20 @@ def run(args: List[str] = None) -> None:
         args: The list of command-line arguments.
     """
     # validates arguments
-    filename, lookup_chain, output_format, check_install_flag = parse_args(args)
+    filename, lookup_chain, output_format, check_install_flag, version_flag = (
+        parse_args(args)
+    )
 
     if check_install_flag:
         check_install()
         return
 
-    # Special case: If we have only one argument and it looks like a dot path,
-    # treat it as the dot path rather than the file
+    if version_flag:
+        print(f"dotcat version {__version__}")
+        return
+
+    # Special case: If we have only one argument and it looks like a dotted-path,
+    # treat it as the dotted-path rather than the file
     if filename is not None and lookup_chain is None and len(args) == 1:
         if is_likely_dot_path(filename):
             # Swap the arguments
@@ -414,25 +484,25 @@ def run(args: List[str] = None) -> None:
     # Handle cases where one of the required arguments is missing
     if lookup_chain is None or filename is None:
         if filename is not None and lookup_chain is None:
-            # Case 1: File is provided but dot pattern is missing
+            # Case 1: File is provided but dotted-path is missing
             try:
                 if os.path.exists(filename):
-                    # File exists, but dot pattern is missing
+                    # File exists, but dotted-path is missing
                     print(
-                        f"{red('Dot')} path required. {red('Which')} value do you want me to look up in {filename}?"
+                        f"Dotted-path required. Which value do you want me to look up in {filename}?"
                     )
-                    print(f"\n$dotcat {filename} {red('<pattern>')}")
+                    print(f"\n$dotcat {filename} {red('<dotted-path>')}")
                     sys.exit(2)  # Invalid usage
             except Exception:
                 # If there's any error checking the file, fall back to general usage message
                 pass
         elif filename is None and lookup_chain is not None:
-            # Case 2: Dot pattern is provided but file is missing
-            # Check if the argument looks like a dot path (contains dots)
+            # Case 2: Dotted-path is provided but file is missing
+            # Check if the argument looks like a dotted-path (contains dots)
             if "." in lookup_chain:
-                # It looks like a dot path, so assume the file is missing
+                # It looks like a dotted-path, so assume the file is missing
                 print(
-                    f"{red('File')} path required. {red('Which')} file contains the value at {lookup_chain}?"
+                    f"File path required. Which file contains the value at {lookup_chain}?"
                 )
                 print(f"\n$dotcat {red('<file>')} {lookup_chain}")
                 sys.exit(2)  # Invalid usage
@@ -440,17 +510,22 @@ def run(args: List[str] = None) -> None:
             # so fall back to the general usage message
 
         # General usage message for other cases
-        print(USAGE)
+        print(USAGE)  # Display usage for invalid arguments
         sys.exit(2)  # Invalid usage
 
     # gets the parsed data
     try:
         data = parse_file(filename)
     except FileNotFoundError as e:
-        print(red(str(e)))
+        print(str(e))
         sys.exit(3)  # File not found
     except ValueError as e:
-        print(red(str(e)))
+        if "File is empty" in str(e):
+            print(f"File is empty: {red(filename)}")
+        elif "Unable to parse file" in str(e):
+            print(f"Unable to parse file: {red(filename)}")
+        else:
+            print(f"{str(e)}: {red(filename)}")
         sys.exit(4)  # Parsing error
 
     # get the value at the specified key
@@ -458,7 +533,8 @@ def run(args: List[str] = None) -> None:
         value = from_attr_chain(data, lookup_chain)
         print(format_output(value, output_format))
     except KeyError as e:
-        print(f"{red('[ERROR]')} {filename}: " + e.args[0].strip('"'))
+        key = e.args[0].split("'")[1] if "'" in e.args[0] else e.args[0]
+        print(f"Key {red(key)} not found in {filename}")
         sys.exit(5)  # Key not found
 
 

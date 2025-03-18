@@ -35,6 +35,8 @@ Access deeply **nested values** using intuitive dot-separated paths (e.g., **`pe
 
 Dotcat is a good **unix citizen** with well structured **exit codes** so it can take part of your command pipeline like cat or grep would.
 
+Includes **ZSH autocompletion** for both file paths and dotted paths, making it even easier to navigate complex data structures.
+
 ## Installation
 
 If you have a global pip install, this will install dotcat globally:
@@ -42,3 +44,24 @@ If you have a global pip install, this will install dotcat globally:
 ```bash
 pip install dotcat
 ```
+
+## ZSH Completion
+
+Dotcat comes with ZSH completion support that is automatically installed when you install the package with pip. The installation script will:
+
+1. Look for appropriate ZSH completion directories
+2. Install the completion files if possible
+3. Notify you of the installation location
+
+If the automatic installation fails, you can manually install the completions:
+
+```bash
+# Copy the completion script to your ZSH completions directory
+mkdir -p ~/.zsh/completions
+cp /path/to/installed/package/zsh/_dotcat ~/.zsh/completions/
+
+# Or run the installation script directly
+dotcat-install-completions
+```
+
+See the [ZSH completion README](zsh/README.md) for detailed instructions.

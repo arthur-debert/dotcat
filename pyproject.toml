@@ -4,11 +4,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 packages = [{ include = "dotcat", from = "src" }]
-include = ["templates", "template/**", "LICENSE", "README.md"]
+include = ["templates", "template/**", "LICENSE", "README.md", "zsh/**"]
 exclude = ["tests"]
 
 [project]
-version = "0.9.0"
+version = "0.9.1"
 
 name = "dotcat"
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -79,7 +79,8 @@ docs = [
 
 [project.scripts]
 dotcat = "dotcat:main"
-
+install-dotcat-completions = "dotcat.install_completions:main"
+dotcat-install-completions = "dotcat.install_completions:main"
 
 [tool.pytest.ini_options]
 addopts = "-ra -q"
