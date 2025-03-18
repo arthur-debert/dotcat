@@ -30,7 +30,7 @@ def test_get_version_from_toml_with_mock():
     # Mock the open function and toml.load to return our mock content
     with (
         patch("pathlib.Path.exists", return_value=True),
-        patch("toml.load", return_value={"project": {"version": "1.2.3"}}),
+        patch("tomllib.load", return_value={"project": {"version": "1.2.3"}}),
     ):
         version = get_version_from_toml()
         assert version == "1.2.3"
@@ -47,7 +47,7 @@ def test_get_version_from_toml_exception():
     """Test get_version_from_toml when an exception occurs."""
     with (
         patch("pathlib.Path.exists", return_value=True),
-        patch("toml.load", side_effect=Exception("Test exception")),
+        patch("tomllib.load", side_effect=Exception("Test exception")),
     ):
         version = get_version_from_toml()
         assert version == "unknown"

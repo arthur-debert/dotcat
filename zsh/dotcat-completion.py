@@ -18,124 +18,51 @@ Output:
 
 import sys
 import os
-import json
-from configparser import ConfigParser
+
+# Import dotcat modules
+try:
+    from dotcat.parsers import parse_file
+    from dotcat.data_access import LIST_ACCESS_SYMBOL
+except ImportError:
+    sys.stderr.write("Error: dotcat package not found. Please ensure it's installed.\n")
+    sys.exit(1)
 
 
-def extract_paths_from_dict(data, prefix="", paths=None):
+def extract_paths_from_data(data, prefix="", paths=None):
     """
-    Recursively extract all possible dotted paths from a dictionary.
+    Recursively extract all possible dotted paths from parsed data.
+
+    This is similar to the functionality in the main dotcat package but
+    specialized for completion purposes.
 
     Args:
-        data: The dictionary to extract paths from
+        data: The data to extract paths from
         prefix: The current path prefix
         paths: The set of paths found so far
 
     Returns:
-        A set of all dotted paths in the dictionary
+        A set of all dotted paths in the data
     """
     if paths is None:
         paths = set()
 
-    if not isinstance(data, dict):
-        return paths
+    if isinstance(data, dict):
+        for key, value in data.items():
+            # Skip numeric keys
+            if isinstance(key, str) and key.isdigit():
+                continue
 
-    for key, value in data.items():
-        # Skip numeric keys
-        if isinstance(key, str) and key.isdigit():
-            continue
+            current_path = f"{prefix}.{key}" if prefix else key
+            paths.add(current_path)
 
-        current_path = f"{prefix}.{key}" if prefix else key
-        paths.add(current_path)
-
-        if isinstance(value, dict):
-            extract_paths_from_dict(value, current_path, paths)
-        elif isinstance(value, list):
-            for i, item in enumerate(value):
-                if isinstance(item, dict):
-                    extract_paths_from_dict(item, f"{current_path}@{i}", paths)
+            extract_paths_from_data(value, current_path, paths)
+    elif isinstance(data, list):
+        for i, item in enumerate(data):
+            if isinstance(item, dict):
+                current_path = f"{prefix}{LIST_ACCESS_SYMBOL}{i}" if prefix else str(i)
+                extract_paths_from_data(item, current_path, paths)
 
     return paths
-
-
-def parse_json(file_path):
-    """Parse a JSON file and extract dotted paths."""
-    try:
-        with open(file_path, "r") as f:
-            data = json.load(f)
-        return extract_paths_from_dict(data)
-    except json.JSONDecodeError:
-        sys.stderr.write(f"Error: Unable to parse JSON file: {file_path}\n")
-        return set()
-
-
-def parse_yaml(file_path):
-    """Parse a YAML file and extract dotted paths."""
-    try:
-        import yaml
-
-        with open(file_path, "r") as f:
-            data = yaml.safe_load(f)
-        return extract_paths_from_dict(data)
-    except ImportError:
-        sys.stderr.write(
-            "Warning: PyYAML not installed. YAML completion unavailable.\n"
-        )
-        return set()
-    except yaml.YAMLError:
-        sys.stderr.write(f"Error: Unable to parse YAML file: {file_path}\n")
-        return set()
-
-
-def parse_toml(file_path):
-    """Parse a TOML file and extract dotted paths."""
-    try:
-        import toml
-
-        with open(file_path, "r") as f:
-            data = toml.load(f)
-        return extract_paths_from_dict(data)
-    except ImportError:
-        sys.stderr.write("Warning: toml not installed. TOML completion unavailable.\n")
-        return set()
-    except Exception:
-        sys.stderr.write(f"Error: Unable to parse TOML file: {file_path}\n")
-        return set()
-
-
-def parse_ini(file_path):
-    """Parse an INI file and extract dotted paths."""
-    try:
-        config = ConfigParser()
-        config.read(file_path)
-
-        paths = set()
-        for section in config.sections():
-            paths.add(section)
-            for key in config[section]:
-                paths.add(f"{section}.{key}")
-
-        return paths
-    except Exception:
-        sys.stderr.write(f"Error: Unable to parse INI file: {file_path}\n")
-        return set()
-
-
-def get_file_parser(file_path):
-    """Get the appropriate parser based on file extension."""
-    ext = os.path.splitext(file_path)[1].lower()
-
-    if ext == ".json":
-        return parse_json
-    elif ext in (".yaml", ".yml"):
-        return parse_yaml
-    elif ext == ".toml":
-        return parse_toml
-    elif ext == ".ini":
-        return parse_ini
-    else:
-        sys.stderr.write(f"Error: Unsupported file extension: {ext}\n")
-        return None
 
 
 def filter_paths_by_prefix(paths, prefix):
@@ -175,11 +102,15 @@ def main():
         sys.stderr.write(f"Error: File not found: {file_path}\n")
         sys.exit(1)
 
-    parser = get_file_parser(file_path)
-    if not parser:
-        sys.exit(1)
+    try:
+        # Use dotcat's parse_file function to parse the file
+        data = parse_file(file_path)
 
-    paths = parser(file_path)
+        # Extract paths from the parsed data
+        paths = extract_paths_from_data(data)
+    except Exception as e:
+        sys.stderr.write(f"Error: {str(e)}\n")
+        sys.exit(1)
 
     if prefix:
         # If we have a prefix, filter paths and get the next segments

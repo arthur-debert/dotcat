@@ -12,8 +12,8 @@ jobs:
       - name: Setup Python environment
         uses: ./.github/actions/setup-python-poetry
         with:
-          python-version: '3.9'
-          cache-key-prefix: 'test-env'
+          python-version: "3.11"
+          cache-key-prefix: "test-env"
 
       - name: Extract repo name
         id: extract_repo_name

@@ -3,20 +3,17 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-packages = [{ include = "dotcat", from = "src" }]
+packages = [{ include = "dotcat", from = "src" }, { include = "zsh" }]
 include = ["templates", "template/**", "LICENSE", "README.md", "zsh/**"]
 exclude = ["tests"]
 
-[tool.poetry.group.dev.dependencies]
-xenon = "^0.9.3"
-
 [project]
-version = "0.9.1"
+version = "0.9.5"
 
 name = "dotcat"
 readme = { file = "README.md", content-type = "text/markdown" }
 description = "Cat structured data , in style"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Arthur Debert", email = "arthur@debert.xzy" }]
 classifiers = [
@@ -25,11 +22,11 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 urls = { "Homepage" = "https://github.com/arthur-debert/dotcat" }
-dependencies = ["pyyaml>=6.0.2", "homebrew-pypi-poet>=0.10.0"]
+dependencies = ["pyyaml>=6.0.2"]
 
 [project.optional-dependencies]
 dev = [
-    "toml>=0.10.2",
+    "homebrew-pypi-poet>=0.10.0",
     "build>=1.2.2.post1",
     "asttokens>=2.4.1",
     "certifi>=2024.6.2",
@@ -82,14 +79,13 @@ docs = [
 
 [project.scripts]
 dotcat = "dotcat:main"
-install-dotcat-completions = "dotcat.install_completions:main"
-dotcat-install-completions = "dotcat.install_completions:main"
+install-dotcat-completions = "zsh.install_completions:main"
+dotcat-install-completions = "zsh.install_completions:main"
 
 [tool.pytest.ini_options]
 addopts = "-ra -q"
 testpaths = ["./tests/"]
 python_files = ["test_*.py"]
-norecursedirs = ["template/py"]
 
 [tool.virtualenv]
 in-project = true
