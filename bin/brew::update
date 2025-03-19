@@ -1,9 +1,0 @@
-#! /usr/bin/env bash
-#this scripts uses poet to get the checksum
-
-prefix="bin/templates/formula"
-checksum_path="dist/formula-middle"
-mkdir -p "dist"
-# if there is no poet :
-"$(poetry env info -p)"/bin/poet --single dotcat | sed '1d;$d' | sed 's/^    /  /' > ${checksum_path}
-cat ${prefix}-top ${checksum_path} ${prefix}-bottom
