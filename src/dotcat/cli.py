@@ -5,7 +5,7 @@ Command-line interface functions for dotcat.
 import sys
 import os
 import argparse
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 # Add import for argcomplete
 try:
@@ -91,12 +91,14 @@ def validate_required_arguments(
                 if os.path.exists(filename):
                     # File exists, but dotted-path is missing
                     print(
-                        f"Dotted-path required. Which value do you want me to look up in {filename}?"
+                        f"Dotted-path required. Which value do you want me "
+                        f"to look up in {filename}?"
                     )
                     print(f"\n$dotcat {filename} {red('<dotted-path>')}")
                     sys.exit(2)  # Invalid usage
             except Exception:
-                # If there's any error checking the file, fall back to general usage message
+                # If there's any error checking the file,
+                # fall back to general usage message
                 pass
         elif filename is None and lookup_chain is not None:
             # Case 2: Dotted-path is provided but file is missing
@@ -104,7 +106,8 @@ def validate_required_arguments(
             if "." in lookup_chain:
                 # It looks like a dotted-path, so assume the file is missing
                 print(
-                    f"File path required. Which file contains the value at {lookup_chain}?"
+                    f"File path required. Which file contains the value "
+                    f"at {lookup_chain}?"
                 )
                 print(f"\n$dotcat {red('<file>')} {lookup_chain}")
                 sys.exit(2)  # Invalid usage
@@ -149,26 +152,15 @@ def process_and_display_result(
         sys.exit(5)  # Key not found
 
 
-def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
+def create_argument_parser() -> argparse.ArgumentParser:
     """
-    Returns the filename, dotted-path, output format, and version flag.
+    Create and return the argument parser.
 
-    Args:
-        args: The list of command-line arguments.
+    This function is separated to allow reuse by the argcomplete registration.
 
     Returns:
-        The filename, dotted-path, output format, and version flag.
+        The configured argument parser
     """
-    # Handle help commands
-    if args is None or len(args) == 0:
-        print(HELP)  # Show help for no arguments
-        sys.exit(0)
-
-    # Handle explicit help requests
-    if "help" in args or "-h" in args or "--help" in args:
-        print(HELP)  # Show help for help requests
-        sys.exit(0)
-
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("file", type=str, nargs="?", help="The file to read from")
     parser.add_argument(
@@ -192,6 +184,31 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
     # Set up custom completers
     setup_completers(parser)
 
+    return parser
+
+
+def parse_args(args: List[str]) -> Tuple[Optional[str], Optional[str], str, bool]:
+    """
+    Returns the filename, dotted-path, output format, and version flag.
+
+    Args:
+        args: The list of command-line arguments.
+
+    Returns:
+        The filename, dotted-path, output format, and version flag.
+    """
+    # Handle help commands
+    if args is None or len(args) == 0:
+        print(HELP)  # Show help for no arguments
+        sys.exit(0)
+
+    # Handle explicit help requests
+    if "help" in args or "-h" in args or "--help" in args:
+        print(HELP)  # Show help for help requests
+        sys.exit(0)
+
+    parser = create_argument_parser()
+
     # Enable argcomplete if available
     if HAS_ARGCOMPLETE:
         argcomplete.autocomplete(parser)
@@ -207,7 +224,8 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
 
 def run(args: List[str] = None) -> None:
     """
-    Processes the command-line arguments and prints the value from the structured data file.
+    Processes the command-line arguments and prints the value from the
+    structured data file.
 
     Args:
         args: The list of command-line arguments.

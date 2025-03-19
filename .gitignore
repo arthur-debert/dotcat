@@ -119,10 +119,10 @@ pytestdebug.log
 # celery beat schedule file
 celerybeat-schedule
 
-
 # dotenv
 .env
 .env.*
 .venv*
 docs/_build
 _build
+.gitignore

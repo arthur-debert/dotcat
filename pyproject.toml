@@ -83,6 +83,9 @@ dotcat = "dotcat:main"
 install-dotcat-completions = "zsh.install_completions:main"
 dotcat-install-completions = "zsh.install_completions:main"
 
+[project.entry-points.argcomplete]
+dotcat = "zsh:register_completions"
+
 [tool.pytest.ini_options]
 addopts = "-ra -q"
 testpaths = ["./tests/"]

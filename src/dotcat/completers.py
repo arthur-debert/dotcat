@@ -59,8 +59,16 @@ def setup_completers(parser: Any) -> None:
     Args:
         parser: The argparse parser to add completers to
     """
-    # Find the dotted_path argument and set its completer
-    for action in parser._actions:
-        if getattr(action, "dest", None) == "dotted_path":
-            action.completer = DottedPathCompleter()
-            break
+    try:
+        # Import here to avoid dependency on argcomplete for core functionality
+        from argcomplete.completers import FilesCompleter
+
+        # Find the file argument and set its completer to FilesCompleter
+        for action in parser._actions:
+            if getattr(action, "dest", None) == "file":
+                action.completer = FilesCompleter()
+            elif getattr(action, "dest", None) == "dotted_path":
+                action.completer = DottedPathCompleter()
+    except ImportError:
+        # If argcomplete is not available, do nothing
+        pass

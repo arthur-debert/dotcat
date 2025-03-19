@@ -34,6 +34,20 @@ def is_argcomplete_available():
         return False
 
 
+def is_pipx_available():
+    """Check if pipx is available on the system."""
+    try:
+        subprocess.run(
+            ["pipx", "--version"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        return True
+    except FileNotFoundError:
+        return False
+
+
 def get_zsh_completion_dirs():
     """Get potential zsh completion directories."""
     # Common system-wide completion directories
@@ -129,8 +143,42 @@ def setup_argcomplete():
         return False
 
 
+def check_pipx_installation():
+    """Check if dotcat was installed via pipx and provide guidance."""
+    if is_pipx_available():
+        try:
+            # Check if dotcat is installed via pipx
+            result = subprocess.run(
+                ["pipx", "list"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+                text=True,
+            )
+
+            if "dotcat" in result.stdout:
+                print("\nDetected pipx installation of dotcat.")
+                print("For the best completion experience with pipx:")
+                print("1. Run: pipx completions")
+                print("2. Follow the instructions from that command")
+                print("3. Restart your shell or source your shell configuration file")
+                return True
+
+        except subprocess.CalledProcessError:
+            pass
+
+    return False
+
+
 def install_completions():
     """Install zsh completions."""
+    # First check if we're using pipx
+    if check_pipx_installation():
+        # If dotcat is installed via pipx, focus on that method
+        if setup_argcomplete():
+            print("argcomplete global setup successful as a fallback.")
+        return
+
     if not is_zsh_available():
         print("ZSH not found. Skipping traditional zsh completion installation.")
         # Try to set up argcomplete anyway
@@ -234,8 +282,17 @@ def install_completions():
 
 def main():
     """Main entry point."""
+    print("\n=== Dotcat Completion Setup ===\n")
+
     try:
         install_completions()
+
+        # Final recommendations
+        print("\nRecommendations for the best experience:")
+        print("1. If using pipx: Run 'pipx completions' and follow the instructions")
+        print("2. If using pip: Make sure argcomplete is installed and activated")
+        print("3. Restart your shell or source your shell configuration file")
+
     except Exception as e:
         print(f"Error during completion installation: {e}")
         # Don't fail the installation if completion setup fails

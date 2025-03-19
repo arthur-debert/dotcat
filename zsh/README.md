@@ -5,18 +5,34 @@ command.
 
 ## Completion Options
 
-Dotcat now supports two completion methods:
+Dotcat now supports three completion methods:
 
 1. **Traditional ZSH Completion** - A custom ZSH completion script that provides
    basic file and dotted-path completions.
 2. **Argcomplete-based Completion** - A more advanced completion system using
    Python's argcomplete library.
+3. **Pipx Completions** - Automatic completions when installed via pipx.
 
 ## Installation
 
+### Using pipx (Recommended)
+
+The simplest way to install dotcat with completions is via pipx:
+
+```bash
+# Install dotcat
+pipx install dotcat
+
+# Make sure pipx completions are set up
+pipx completions
+
+# Follow the instructions from the command above to set up completions for your shell
+```
+
 ### Automatic Installation
 
-The simplest way to install completions is to run:
+If you installed via pip or other methods, you can set up completions by
+running:
 
 ```bash
 dotcat-install-completions
@@ -72,10 +88,24 @@ The main advantages of argcomplete are:
 - It's integrated directly with the Python code, so it's more maintainable
 - It can provide better context-aware completions
 
-## Choosing Between the Two
+### pipx Completion
 
-The installer will attempt to set up both systems, but argcomplete is preferred
-if available. If you have both installed, argcomplete will take precedence.
+When installed via pipx with the `pipx completions` setup, dotcat will
+automatically register for shell completion via argcomplete's entry point
+system. This means:
+
+- No additional setup is required beyond configuring pipx completions
+- Works with zsh, bash, and other shells supported by pipx completions
+- Updates automatically when dotcat is updated via pipx
+
+## Choosing Between the Options
+
+The recommended approach is to install via pipx. If you prefer other methods:
+
+1. Argcomplete is preferred if available
+2. Traditional ZSH completion is used as a fallback
+
+If you have both installed, argcomplete will take precedence.
 
 If you prefer to use only the traditional ZSH completion, you can remove
 argcomplete:
@@ -115,27 +145,24 @@ For local testing without installation, use the test script:
 
 If completion doesn't work:
 
-1. Make sure the file is in a directory in your $fpath
-2. Check that the file has the correct permissions:
+1. For pipx installation:
 
-```bash
-chmod 755 /path/to/_dotcat
-```
+   - Make sure you've run `pipx completions` and followed the instructions
+   - Restart your shell or source your shell configuration file
 
-3. If using the Python helper, make sure it's in your PATH and executable:
+2. For traditional ZSH completion:
 
-```bash
-which dotcat-completion.py
-chmod +x /path/to/dotcat-completion.py
-```
+   - Make sure the file is in a directory in your $fpath
+   - Check that the file has the correct permissions (chmod 755)
+   - Run `compinit` to rebuild the completion system
 
-4. Run `compinit` to rebuild the completion system:
+3. For argcomplete:
 
-```bash
-autoload -Uz compinit && compinit
-```
+   - Check that argcomplete is installed (`pip list | grep argcomplete`)
+   - Make sure you've run `activate-global-python-argcomplete`
+   - Restart your shell or source your shell configuration
 
-5. Check for any error messages when sourcing your `.zshrc`
+4. Check for any error messages when sourcing your shell configuration file
 
 ## Manual Testing
 
