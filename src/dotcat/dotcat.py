@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
 """
-This script reads values, including nested values, from structured data files (JSON, YAML, TOML, INI).
+This script reads values, including nested values, from structured data files
+(JSON, YAML, TOML, INI).
 
 Usage:
     dotcat <file> <dotted-path>
@@ -30,7 +32,7 @@ from .parsers import (
     ParsedData,
 )
 from .output_formatters import format_output
-from .data_access import LIST_ACCESS_SYMBOL, SLICE_SYMBOL, access_list, from_attr_chain
+from .data_access import LIST_ACCESS_SYMBOL, SLICE_SYMBOL, access_list, from_dotted_path
 from .cli import parse_args, is_likely_dot_path, run, main
 
 # For backward compatibility, re-export everything
@@ -54,7 +56,7 @@ __all__ = [
     "LIST_ACCESS_SYMBOL",
     "SLICE_SYMBOL",
     "access_list",
-    "from_attr_chain",
+    "from_dotted_path",
     "parse_args",
     "is_likely_dot_path",
     "run",
