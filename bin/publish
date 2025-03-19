@@ -1,5 +1,10 @@
 #! /usr/bin/env bash
 
+if ! command -v twine &>/dev/null; then
+	echo "twine not found in path, activating virtual environment"
+	source .venv/bin/activate
+fi
+
 rm -fr dist/*
 poetry build
 twine upload dist/*
