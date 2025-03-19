@@ -4,7 +4,8 @@ from dotcat.__version__ import get_version_from_toml
 
 
 def test_get_version_from_toml():
-    """Test that get_version_from_toml correctly extracts version from pyproject.toml."""
+    """Test that get_version_from_toml correctly extracts version from
+    pyproject.toml."""
     # Get the actual version from pyproject.toml
     project_root = pathlib.Path(__file__).parent.parent
     pyproject_path = project_root / "pyproject.toml"

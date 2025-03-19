@@ -10,7 +10,8 @@ Usage:
 
 Arguments:
     file:   The file to extract paths from
-    prefix: Optional prefix to filter paths (e.g., "project" to get "project.name", "project.version", etc.)
+    prefix: Optional prefix to filter paths (e.g., "project" to get "project.name",
+            "project.version", etc.)
 
 Output:
     A newline-separated list of dotted paths
