@@ -59,13 +59,13 @@ def test_process_file():
 def test_lookup_value():
     """Test that values are looked up correctly."""
     # Test with a valid key
-    with patch("dotcat.core.from_attr_chain", return_value="value"):
+    with patch("dotcat.core.from_dotted_path", return_value="value"):
         result = lookup_value({"key": "value"}, "key")
         assert result == "value"
 
     # Test with a key not found error
     with patch(
-        "dotcat.core.from_attr_chain",
+        "dotcat.core.from_dotted_path",
         side_effect=KeyError("key 'nonexistent' not found"),
     ):
         with pytest.raises(KeyError) as excinfo:

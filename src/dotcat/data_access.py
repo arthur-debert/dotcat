@@ -33,9 +33,10 @@ def access_list(data: Any, key: str, index: str) -> Any:
         raise KeyError(f"Invalid index '{index}' for key '{key}': {str(e)}")
 
 
-def from_attr_chain(data: Dict[str, Any], lookup_chain: str) -> Any:
+def from_dotted_path(data: Dict[str, Any], lookup_chain: str) -> Any:
     """
-    Accesses a nested dictionary value with an attribute chain encoded by a dot-separated string.
+    Accesses a nested dictionary value with an attribute chain encoded by a
+    dot-path string.
 
     Args:
         data: The dictionary to access.

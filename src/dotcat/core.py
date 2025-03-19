@@ -7,7 +7,7 @@ from typing import Any
 
 from .formatting import red
 from .parsers import parse_file
-from .data_access import from_attr_chain
+from .data_access import from_dotted_path
 from .output_formatters import format_output
 
 
@@ -69,7 +69,7 @@ def lookup_value(data: Any, lookup_chain: str) -> Any:
     Raises:
         KeyError: If the key is not found.
     """
-    return from_attr_chain(data, lookup_chain)
+    return from_dotted_path(data, lookup_chain)
 
 
 def format_value(value: Any, output_format: str) -> str:
