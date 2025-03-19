@@ -1,0 +1,191 @@
+#!/usr/bin/env python3
+"""
+Script to generate a Homebrew formula for dotcat from the pyproject.toml file.
+
+Usage:
+  ./bin/brew-update [--commit]
+
+Options:
+  --commit    Automatically commit the formula changes to git if changes are detected
+
+This script will:
+1. Read metadata from pyproject.toml
+2. Generate a Homebrew formula using PyPI as the source
+3. Attempt to fetch the SHA256 hash for the PyPI package
+4. Optionally commit changes to git
+"""
+
+import os
+import sys
+import tomli
+import hashlib
+import urllib.request
+import urllib.error
+import subprocess
+import argparse
+from pathlib import Path
+
+
+def get_pypi_sha256(package_name, version):
+    """
+    Get the SHA256 hash for a PyPI package.
+    Returns None if the package cannot be downloaded.
+    """
+    # Construct PyPI URL
+    url = (
+        f"https://files.pythonhosted.org/packages/source/"
+        f"{package_name[0]}/{package_name}/{package_name}-{version}.tar.gz"
+    )
+
+    try:
+        print(f"Downloading {url} to calculate SHA256...")
+        response = urllib.request.urlopen(url)
+        package_data = response.read()
+        sha256 = hashlib.sha256(package_data).hexdigest()
+        print(f"SHA256 calculated: {sha256}")
+        return sha256, url
+    except urllib.error.URLError as e:
+        print(f"Warning: Could not download package: {e}")
+        return None, url
+
+
+def commit_changes(formula_path, version):
+    """
+    Commit changes to the Homebrew formula if there are any.
+    Returns True if changes were committed, False otherwise.
+    """
+    # Check if there are changes to the formula
+    result = subprocess.run(
+        ["git", "diff", "--quiet", formula_path.as_posix()], capture_output=True
+    )
+
+    if result.returncode == 0:
+        print("No changes to commit.")
+        return False
+
+    try:
+        # Add the changes to git
+        subprocess.run(["git", "add", formula_path.as_posix()], check=True)
+
+        # Commit the changes
+        commit_msg = f"Update Homebrew formula for version {version}"
+        subprocess.run(["git", "commit", "-m", commit_msg], check=True)
+
+        print(f"Changes committed: {commit_msg}")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Error committing changes: {e}")
+        return False
+
+
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Generate and update Homebrew formula for dotcat"
+    )
+    parser.add_argument(
+        "--commit",
+        action="store_true",
+        help="Automatically commit formula changes if detected",
+    )
+    return parser.parse_args()
+
+
+def main():
+    """Main function to generate the Homebrew formula."""
+    args = parse_args()
+
+    # Get the project root directory
+    project_root = Path(__file__).parent.parent.absolute()
+
+    # Path to pyproject.toml
+    pyproject_path = project_root / "pyproject.toml"
+
+    # Output directory for the formula
+    homebrew_dir = project_root / "HomebrewFormula"
+    os.makedirs(homebrew_dir, exist_ok=True)
+
+    # Output file for the formula
+    formula_path = homebrew_dir / "dotcat.rb"
+
+    # Read the pyproject.toml file
+    try:
+        with open(pyproject_path, "rb") as f:
+            pyproject_data = tomli.load(f)
+    except Exception as e:
+        print(f"Error reading pyproject.toml: {e}", file=sys.stderr)
+        return 1
+
+    # Extract metadata from pyproject.toml
+    project_data = pyproject_data.get("project", {})
+    package_name = "dotcat"  # The package name on PyPI
+    version = project_data.get("version", "0.9.6")  # Updated to current version
+    description = project_data.get("description", "Cat structured data, in style")
+    homepage = project_data.get("urls", {}).get(
+        "Homepage", "https://github.com/arthur-debert/dotcat"
+    )
+
+    # Get the SHA256 hash and URL for the PyPI package
+    sha256_result, pypi_url = get_pypi_sha256(package_name, version)
+    sha256_placeholder = (
+        sha256_result if sha256_result else "REPLACE_WITH_ACTUAL_SHA256"
+    )
+
+    # Create the formula content
+    formula_content = f"""
+class Dotcat < Formula
+  include Language::Python::Virtualenv
+
+  desc "{description}"
+  homepage "{homepage}"
+  url "{pypi_url}"
+  sha256 "{sha256_placeholder}"
+  license "MIT"
+
+  depends_on "python@3.11"
+
+  def install
+    virtualenv_install_with_resources
+
+    # Install zsh completion
+    zsh_completion.install "zsh/_dotcat" => "_dotcat"
+    # Install the helper script for ZSH completions
+    bin.install "zsh/dotcat-completion.py"
+  end
+
+  test do
+    # Add some basic tests to verify the installation
+    assert_match "dotcat v{version}", shell_output("#{{bin}}/dotcat --version")
+
+    # Test if the completions are installed correctly
+    assert_predicate zsh_completion/"_dotcat", :exist?
+    assert_predicate bin/"dotcat-completion.py", :exist?
+  end
+end
+"""
+
+    # Write the formula to file
+    with open(formula_path, "w") as f:
+        f.write(formula_content.strip())
+
+    print(f"Homebrew formula generated at {formula_path}")
+    if not sha256_result:
+        print(
+            "Note: You need to replace 'REPLACE_WITH_ACTUAL_SHA256' "
+            "with the actual SHA256 of the package."
+        )
+        print(
+            f"To calculate the SHA256, you can download {pypi_url} "
+            "and run: shasum -a 256 <package>"
+        )
+
+    # Commit changes if requested
+    if args.commit:
+        print("Checking for changes to commit...")
+        commit_changes(formula_path, version)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
