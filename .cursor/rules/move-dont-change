@@ -1,0 +1,5 @@
+Don't change implementations unless asked to do so.
+
+Don't rewrite code that's working unless specifically asked to .
+The following things should never change the core code:
+* moving code or tests from a file to another (updating imports and docs to reflect that is ok)

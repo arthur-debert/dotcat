@@ -24,6 +24,16 @@ def is_zsh_available():
         return False
 
 
+def is_argcomplete_available():
+    """Check if argcomplete is available."""
+    try:
+        import argcomplete  # noqa: F401
+
+        return argcomplete is not None
+    except ImportError:
+        return False
+
+
 def get_zsh_completion_dirs():
     """Get potential zsh completion directories."""
     # Common system-wide completion directories
@@ -63,10 +73,70 @@ def get_zsh_completion_dirs():
     return valid_dirs
 
 
+def setup_argcomplete():
+    """Set up argcomplete for dotcat."""
+    if not is_argcomplete_available():
+        print("argcomplete not found, skipping argcomplete setup.")
+        return False
+
+    try:
+        # Try to run activate-global-python-argcomplete
+        print("Setting up argcomplete global completion...")
+
+        # Check if activate-global-python-argcomplete is available
+        try:
+            subprocess.run(
+                ["which", "activate-global-python-argcomplete"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True,
+            )
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            print(
+                "activate-global-python-argcomplete not found, skipping argcomplete setup."
+            )
+            return False
+
+        # Run activate-global-python-argcomplete
+        subprocess.run(
+            ["activate-global-python-argcomplete"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+        )
+
+        print("argcomplete global completion setup successful.")
+
+        # Tell the user to source their shell config
+        shell = os.environ.get("SHELL", "").split("/")[-1]
+        if shell == "zsh":
+            print(
+                "Please run 'source ~/.zshrc' to enable completions in your current session."
+            )
+        elif shell == "bash":
+            print(
+                "Please run 'source ~/.bashrc' to enable completions in your current session."
+            )
+        else:
+            print("Please restart your shell to enable completions.")
+
+        return True
+    except Exception as e:
+        print(f"Error setting up argcomplete: {e}")
+        return False
+
+
 def install_completions():
     """Install zsh completions."""
     if not is_zsh_available():
-        print("ZSH not found. Skipping completion installation.")
+        print("ZSH not found. Skipping traditional zsh completion installation.")
+        # Try to set up argcomplete anyway
+        if setup_argcomplete():
+            print(
+                "argcomplete setup successful, dotcat will use argcomplete instead of traditional completion."
+            )
+            return
+        print("Fallback: You can manually set up completions or install argcomplete.")
         return
 
     # Get the directory where this script is located (zsh/)
@@ -80,14 +150,23 @@ def install_completions():
         print(
             f"Completion script not found at {completion_script}. Skipping installation."
         )
+        # Try to set up argcomplete
+        if setup_argcomplete():
+            print(
+                "argcomplete setup successful, dotcat will use argcomplete instead of traditional completion."
+            )
+            return
         return
 
     # Find a suitable completion directory
     completion_dirs = get_zsh_completion_dirs()
     if not completion_dirs:
-        print(
-            "No suitable zsh completion directory found. Please install completions manually."
-        )
+        print("No suitable zsh completion directory found. Trying argcomplete instead.")
+        if setup_argcomplete():
+            print(
+                "argcomplete setup successful, dotcat will use argcomplete instead of traditional completion."
+            )
+            return
         print(f"Completion files are located at: {script_dir}")
         return
 
@@ -98,7 +177,7 @@ def install_completions():
     try:
         shutil.copy2(completion_script, target_completion)
         os.chmod(target_completion, 0o755)  # Make executable
-        print(f"Installed zsh completion to {target_completion}")
+        print(f"Installed traditional zsh completion to {target_completion}")
 
         # Install the helper script if possible
         if os.path.exists(helper_script):
@@ -130,8 +209,18 @@ def install_completions():
                     "Could not find a writable directory in PATH for the helper script."
                 )
                 print(f"Please install the helper script manually from {helper_script}")
+
+        # Try to set up argcomplete as well for better completion
+        setup_argcomplete()
+
     except (OSError, PermissionError) as e:
-        print(f"Error installing completions: {e}")
+        print(f"Error installing traditional completions: {e}")
+        print("Trying argcomplete instead...")
+        if setup_argcomplete():
+            print(
+                "argcomplete setup successful, dotcat will use argcomplete instead of traditional completion."
+            )
+            return
         print(f"Please install completions manually from {script_dir}")
 
 

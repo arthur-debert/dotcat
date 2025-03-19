@@ -27,6 +27,21 @@ files = [
 ]
 
 [[package]]
+name = "argcomplete"
+version = "3.6.0"
+description = "Bash tab completion for argparse"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "argcomplete-3.6.0-py3-none-any.whl", hash = "sha256:4e3e4e10beb20e06444dbac0ac8dda650cb6349caeefe980208d3c548708bedd"},
+    {file = "argcomplete-3.6.0.tar.gz", hash = "sha256:2e4e42ec0ba2fff54b0d244d0b1623e86057673e57bafe72dda59c64bd5dee8b"},
+]
+
+[package.extras]
+test = ["coverage", "mypy", "pexpect", "ruff", "wheel"]
+
+[[package]]
 name = "asttokens"
 version = "2.4.1"
 description = "Annotate AST trees with source code positions"
@@ -2372,10 +2387,11 @@ test = ["big-O", "importlib-resources ; python_version < \"3.9\"", "jaraco.funct
 type = ["pytest-mypy"]
 
 [extras]
+completions = ["argcomplete"]
 dev = ["asttokens", "autopep8", "black", "build", "certifi", "coverage", "decorator", "executing", "flake8", "homebrew-pypi-poet", "iniconfig", "ipython", "isort", "jedi", "matplotlib-inline", "packaging", "parso", "pexpect", "piccolo-theme", "pluggy", "pre-commit", "prompt-toolkit", "ptyprocess", "pure-eval", "pyfakefs", "pygments", "pytest", "pytest-cov", "pytest-xdist", "python-dotenv", "setuptools", "six", "stack-data", "traitlets", "twine", "wcwidth"]
 docs = ["doc8", "rstcheck", "rstcheck-core", "sphinx-rtd-theme", "sphinxcontrib-applehelp", "sphinxcontrib-devhelp", "sphinxcontrib-htmlhelp", "sphinxcontrib-jquery", "sphinxcontrib-jsmath", "sphinxcontrib-qthelp", "sphinxcontrib-serializinghtml"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "5c9b8a77fb47641e9297629e4cfe081b92b7170b648b6b14877702454c782387"
+content-hash = "74802e0e9749ca020cbe1c52e2ac8fda0a4a193eea9de40a2fc77e62d8dc8824"

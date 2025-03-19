@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
 """
-This script reads values, including nested values, from structured data files (JSON, YAML, TOML, INI).
+This script reads values, including nested values, from structured data files
+(JSON, YAML, TOML, INI).
 
 Usage:
     dotcat <file> <dotted-path>

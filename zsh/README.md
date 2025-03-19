@@ -1,84 +1,94 @@
-# Dotcat ZSH Completion
+# Dotcat Shell Completions
 
-This directory contains ZSH completion scripts for the `dotcat` command.
+This directory contains files for shell completion support for the `dotcat`
+command.
 
-These completion files are included when you install the dotcat package and are automatically installed during the pip installation process.
+## Completion Options
+
+Dotcat now supports two completion methods:
+
+1. **Traditional ZSH Completion** - A custom ZSH completion script that provides
+   basic file and dotted-path completions.
+2. **Argcomplete-based Completion** - A more advanced completion system using
+   Python's argcomplete library.
+
+## Installation
+
+### Automatic Installation
+
+The simplest way to install completions is to run:
+
+```bash
+dotcat-install-completions
+```
+
+This script will:
+
+1. Attempt to install traditional ZSH completions if ZSH is detected
+2. Attempt to set up argcomplete global completion if argcomplete is installed
+
+### Manual Installation
+
+#### Traditional ZSH Completion
+
+1. Copy the `_dotcat` file to a directory in your `$fpath` (e.g.,
+   `/usr/local/share/zsh/site-functions/`)
+2. Copy `dotcat-completion.py` to a directory in your `$PATH`
+3. Run `compinit` or restart your shell
+
+#### Argcomplete-based Completion
+
+1. Install argcomplete:
+
+   ```bash
+   pip install argcomplete
+   ```
+
+2. Activate global completion:
+
+   ```bash
+   activate-global-python-argcomplete
+   ```
+
+3. Source your shell configuration or restart your shell.
+
+## How It Works
+
+### Traditional Completion
+
+The traditional ZSH completion uses the `_dotcat` file which calls the
+`dotcat-completion.py` helper script. This script parses files and extracts
+dotted paths to suggest as completions.
+
+### Argcomplete Completion
+
+The argcomplete-based completion uses Python's argcomplete library to provide
+more intelligent completions. It leverages the existing code in dotcat to parse
+files and suggest completions.
+
+The main advantages of argcomplete are:
+
+- It works with both ZSH and Bash
+- It's integrated directly with the Python code, so it's more maintainable
+- It can provide better context-aware completions
+
+## Choosing Between the Two
+
+The installer will attempt to set up both systems, but argcomplete is preferred
+if available. If you have both installed, argcomplete will take precedence.
+
+If you prefer to use only the traditional ZSH completion, you can remove
+argcomplete:
+
+```bash
+pip uninstall argcomplete
+```
 
 ## Files
 
 - `_dotcat` - ZSH completion script (uses the Python helper)
 - `dotcat-completion.py` - Python helper script for extracting dotted paths
 - `test-completion.zsh` - Script for testing the completion locally
-
-## Automatic Installation
-
-When you install dotcat using pip, the completion files are automatically installed to an appropriate location on your system. The installation script:
-
-1. Looks for common ZSH completion directories
-2. Installs the completion files if possible
-3. Notifies you of the installation location
-
-If the automatic installation fails, you can manually install the completions using the instructions below or run `dotcat-install-completions` to try again.
-
-## Manual Installation
-
-### Step 1: Choose a directory in your $fpath
-
-First, check your current $fpath directories:
-
-```bash
-echo $fpath
-```
-
-Choose one of the directories from the output (e.g.,
-`/usr/local/share/zsh/site-functions/` or `~/.zsh/completions/`).
-
-If you want to use `~/.zsh/completions/`, make sure it exists:
-
-```bash
-mkdir -p ~/.zsh/completions
-```
-
-And add it to your $fpath in your `~/.zshrc`:
-
-```bash
-fpath=(~/.zsh/completions $fpath)
-```
-
-### Step 2: Install the completion files
-
-Copy the completion script to your chosen directory:
-
-```bash
-cp zsh/_dotcat /path/to/your/chosen/directory/_dotcat
-```
-
-Install the Python helper script to a directory in your PATH:
-
-```bash
-# System-wide installation
-cp zsh/dotcat-completion.py /usr/local/bin/
-chmod +x /usr/local/bin/dotcat-completion.py
-
-# Or to a local bin directory
-mkdir -p $HOME/bin
-cp zsh/dotcat-completion.py $HOME/bin/
-chmod +x $HOME/bin/dotcat-completion.py
-```
-
-Make sure the directory is in your PATH:
-
-```bash
-echo 'export PATH="$HOME/bin:$PATH"' >> $HOME/.zshrc
-```
-
-### Step 3: Reload your ZSH configuration
-
-```bash
-source ~/.zshrc
-```
-
-Or restart your terminal.
 
 ## Testing
 
@@ -147,16 +157,3 @@ environment:
 # Run the test script
 ./zsh/test-completion.zsh
 ```
-
-## How It Works
-
-The completion system works in two parts:
-
-1. The ZSH completion script (`_dotcat`) handles the command-line argument
-   completion.
-2. The Python helper script (`dotcat-completion.py`) parses the structured data
-   files and extracts the dotted paths.
-
-When you type `dotcat file.json` and press TAB, the completion script calls the
-Python helper to extract the possible paths from the file and presents them as
-completion options.

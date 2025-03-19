@@ -7,10 +7,26 @@ import os
 import argparse
 from typing import List, Tuple
 
+# Add import for argcomplete
+try:
+    import argcomplete
+
+    HAS_ARGCOMPLETE = True
+except ImportError:
+    HAS_ARGCOMPLETE = False
+
 from .__version__ import __version__
 from .formatting import red
 from .help_text import HELP, USAGE
 from .core import is_likely_dot_path, process_file, lookup_value, format_value
+
+# Import the completers module
+try:
+    from .completers import setup_completers
+except ImportError:
+    # Define a no-op function if the module is not available
+    def setup_completers(parser):
+        pass
 
 
 def handle_version_flag(version_flag: bool) -> bool:
@@ -172,6 +188,13 @@ def parse_args(args: List[str]) -> Tuple[str, str, str, bool]:
         action="store_true",
         help="Show version information",
     )
+
+    # Set up custom completers
+    setup_completers(parser)
+
+    # Enable argcomplete if available
+    if HAS_ARGCOMPLETE:
+        argcomplete.autocomplete(parser)
 
     parsed_args = parser.parse_args(args)
     return (
