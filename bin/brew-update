@@ -1,23 +1,28 @@
 #!/usr/bin/env python3
 """
-Script to generate a Homebrew formula for dotcat from the pyproject.toml file.
+Script to generate a Homebrew formula for Python packages from PyPI.
 
 Usage:
-  ./bin/brew-update [--commit]
+  ./bin/brew-update [--commit] PACKAGE_NAME
+
+Arguments:
+  PACKAGE_NAME    The PyPI package name to generate a formula for
 
 Options:
-  --commit    Automatically commit the formula changes to git if changes are detected
+  --commit        Automatically commit the formula changes to git if detected
+  --output-dir DIR  Directory where formula should be saved (default: ./HomebrewFormula)
+  --zsh-completions  Include ZSH completions in the formula (if package has them)
 
 This script will:
-1. Read metadata from pyproject.toml
-2. Generate a Homebrew formula using PyPI as the source
-3. Attempt to fetch the SHA256 hash for the PyPI package
+1. Get package metadata from PyPI
+2. Generate a Homebrew formula
+3. Calculate the SHA256 hash for the PyPI package
 4. Optionally commit changes to git
 """
 
 import os
 import sys
-import tomli
+import json
 import hashlib
 import urllib.request
 import urllib.error
@@ -26,30 +31,57 @@ import argparse
 from pathlib import Path
 
 
-def get_pypi_sha256(package_name, version):
+def get_pypi_metadata(package_name):
+    """
+    Get package metadata from the PyPI API.
+    Returns a dictionary with the metadata.
+    """
+    url = f"https://pypi.org/pypi/{package_name}/json"
+    try:
+        print(f"Fetching metadata for {package_name} from PyPI...")
+        with urllib.request.urlopen(url) as response:
+            return json.loads(response.read().decode())
+    except urllib.error.URLError as e:
+        print(f"Error fetching metadata from PyPI: {e}")
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing PyPI response: {e}")
+        sys.exit(1)
+
+
+def get_pypi_sha256(package_name, version, urls):
     """
     Get the SHA256 hash for a PyPI package.
     Returns None if the package cannot be downloaded.
     """
-    # Construct PyPI URL
-    url = (
-        f"https://files.pythonhosted.org/packages/source/"
-        f"{package_name[0]}/{package_name}/{package_name}-{version}.tar.gz"
-    )
+    # Find the sdist URL for the package
+    sdist_url = None
+    for url_info in urls:
+        if url_info.get("packagetype") == "sdist":
+            sdist_url = url_info.get("url")
+            break
+
+    if not sdist_url:
+        print("Warning: Could not find sdist package. Using the first available URL.")
+        if urls:
+            sdist_url = urls[0].get("url")
+        else:
+            print("Error: No download URLs found.")
+            return None, None
 
     try:
-        print(f"Downloading {url} to calculate SHA256...")
-        response = urllib.request.urlopen(url)
+        print(f"Downloading {sdist_url} to calculate SHA256...")
+        response = urllib.request.urlopen(sdist_url)
         package_data = response.read()
         sha256 = hashlib.sha256(package_data).hexdigest()
         print(f"SHA256 calculated: {sha256}")
-        return sha256, url
+        return sha256, sdist_url
     except urllib.error.URLError as e:
         print(f"Warning: Could not download package: {e}")
-        return None, url
+        return None, sdist_url
 
 
-def commit_changes(formula_path, version):
+def commit_changes(formula_path, version, package_name):
     """
     Commit changes to the Homebrew formula if there are any.
     Returns True if changes were committed, False otherwise.
@@ -68,7 +100,7 @@ def commit_changes(formula_path, version):
         subprocess.run(["git", "add", formula_path.as_posix()], check=True)
 
         # Commit the changes
-        commit_msg = f"Update Homebrew formula for version {version}"
+        commit_msg = f"Update Homebrew formula for {package_name} {version}"
         subprocess.run(["git", "commit", "-m", commit_msg], check=True)
 
         print(f"Changes committed: {commit_msg}")
@@ -81,12 +113,25 @@ def commit_changes(formula_path, version):
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Generate and update Homebrew formula for dotcat"
+        description="Generate and update Homebrew formula for Python packages"
+    )
+    parser.add_argument(
+        "package_name", help="The PyPI package name to generate a formula for"
     )
     parser.add_argument(
         "--commit",
         action="store_true",
         help="Automatically commit formula changes if detected",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default="HomebrewFormula",
+        help="Directory where formula should be saved (default: ./HomebrewFormula)",
+    )
+    parser.add_argument(
+        "--zsh-completions",
+        action="store_true",
+        help="Include ZSH completions in the formula (if package has them)",
     )
     return parser.parse_args()
 
@@ -94,73 +139,136 @@ def parse_args():
 def main():
     """Main function to generate the Homebrew formula."""
     args = parse_args()
+    package_name = args.package_name
 
-    # Get the project root directory
+    # Get the project root directory (where the script is located)
     project_root = Path(__file__).parent.parent.absolute()
 
-    # Path to pyproject.toml
-    pyproject_path = project_root / "pyproject.toml"
-
     # Output directory for the formula
-    homebrew_dir = project_root / "HomebrewFormula"
+    if args.output_dir.startswith("/"):
+        # Absolute path
+        homebrew_dir = Path(args.output_dir)
+    else:
+        # Relative to project root
+        homebrew_dir = project_root / args.output_dir
+
     os.makedirs(homebrew_dir, exist_ok=True)
 
     # Output file for the formula
-    formula_path = homebrew_dir / "dotcat.rb"
+    formula_filename = f"{package_name.lower().replace('-', '_')}.rb"
+    formula_path = homebrew_dir / formula_filename
 
-    # Read the pyproject.toml file
-    try:
-        with open(pyproject_path, "rb") as f:
-            pyproject_data = tomli.load(f)
-    except Exception as e:
-        print(f"Error reading pyproject.toml: {e}", file=sys.stderr)
-        return 1
+    # Get package metadata from PyPI
+    pypi_data = get_pypi_metadata(package_name)
 
-    # Extract metadata from pyproject.toml
-    project_data = pyproject_data.get("project", {})
-    package_name = "dotcat"  # The package name on PyPI
-    version = project_data.get("version", "0.9.6")  # Updated to current version
-    description = project_data.get("description", "Cat structured data, in style")
-    homepage = project_data.get("urls", {}).get(
-        "Homepage", "https://github.com/arthur-debert/dotcat"
+    # Extract relevant metadata
+    info = pypi_data.get("info", {})
+    version = info.get("version")
+    description = info.get("summary", f"Python package {package_name}")
+    homepage = (
+        info.get("home_page") or info.get("project_url") or info.get("package_url")
     )
 
+    # Try to get homepage from project URLs if not found directly
+    if not homepage and info.get("project_urls"):
+        for key, value in info.get("project_urls").items():
+            if key.lower() in ("homepage", "home", "source"):
+                homepage = value
+                break
+
+    # If still no homepage, check if it's GitHub
+    if not homepage and "github" in str(info.get("package_url", "")).lower():
+        gh_path = f"{package_name.lower()}/{package_name.lower()}"
+        homepage = f"https://github.com/{gh_path}"
+
+    # If still no homepage, default to PyPI project page
+    if not homepage:
+        homepage = f"https://pypi.org/project/{package_name}"
+
+    license_info = info.get("license", "MIT")
+    python_requires = info.get("requires_python", ">=3.6")
+
+    print(f"Package: {package_name}")
+    print(f"Version: {version}")
+    print(f"Description: {description}")
+    print(f"Homepage: {homepage}")
+    print(f"License: {license_info}")
+    print(f"Python requires: {python_requires}")
+
     # Get the SHA256 hash and URL for the PyPI package
-    sha256_result, pypi_url = get_pypi_sha256(package_name, version)
+    sha256_result, pypi_url = get_pypi_sha256(
+        package_name, version, pypi_data.get("urls", [])
+    )
     sha256_placeholder = (
         sha256_result if sha256_result else "REPLACE_WITH_ACTUAL_SHA256"
     )
 
+    # Determine Python version requirement
+    if ">=" in python_requires:
+        min_version = python_requires.split(">=")[1].split(",")[0].strip()
+        if min_version.startswith("3.11"):
+            python_dependency = 'depends_on "python@3.11"'
+        elif min_version.startswith("3.10"):
+            python_dependency = 'depends_on "python@3.10"'
+        elif min_version.startswith("3.9"):
+            python_dependency = 'depends_on "python@3.9"'
+        else:
+            python_dependency = 'depends_on "python"'
+    else:
+        python_dependency = 'depends_on "python"'
+
+    # Handle installation and test sections based on options
+    if args.zsh_completions:
+        install_section = f"""  def install
+    virtualenv_install_with_resources
+
+    # Install zsh completion
+    zsh_completion.install "zsh/_{package_name}" => "_{package_name}"
+    # Install the helper script for ZSH completions if it exists
+    if File.exist?("zsh/{package_name}-completion.py")
+      bin.install "zsh/{package_name}-completion.py"
+    end
+  end"""
+
+        # Use double curly braces to escape the bin variable in Ruby
+        # Break long line into multiple lines
+        test_section = f"""  test do
+    # Add some basic tests to verify the installation
+    assert_match "{package_name} v{version}",
+                 shell_output("#{{{{bin}}}}/{package_name} --version")
+
+    # Test if the completions are installed correctly
+    assert_predicate zsh_completion/"_{package_name}", :exist?
+  end"""
+    else:
+        # Generic test and installation for other packages
+        install_section = """  def install
+    virtualenv_install_with_resources
+  end"""
+
+        test_section = f"""  test do
+    # Add a basic test to verify the installation
+    system bin/"{package_name}", "--version"
+  end"""
+
+    # Format the class name for Ruby - capitalize and remove dashes
+    class_name = "".join(word.capitalize() for word in package_name.split("-"))
+
     # Create the formula content
-    formula_content = f"""
-class Dotcat < Formula
+    formula_content = f"""class {class_name} < Formula
   include Language::Python::Virtualenv
 
   desc "{description}"
   homepage "{homepage}"
   url "{pypi_url}"
   sha256 "{sha256_placeholder}"
-  license "MIT"
+  license "{license_info}"
 
-  depends_on "python@3.11"
+  {python_dependency}
 
-  def install
-    virtualenv_install_with_resources
+{install_section}
 
-    # Install zsh completion
-    zsh_completion.install "zsh/_dotcat" => "_dotcat"
-    # Install the helper script for ZSH completions
-    bin.install "zsh/dotcat-completion.py"
-  end
-
-  test do
-    # Add some basic tests to verify the installation
-    assert_match "dotcat v{version}", shell_output("#{{bin}}/dotcat --version")
-
-    # Test if the completions are installed correctly
-    assert_predicate zsh_completion/"_dotcat", :exist?
-    assert_predicate bin/"dotcat-completion.py", :exist?
-  end
+{test_section}
 end
 """
 
@@ -170,19 +278,17 @@ end
 
     print(f"Homebrew formula generated at {formula_path}")
     if not sha256_result:
-        print(
-            "Note: You need to replace 'REPLACE_WITH_ACTUAL_SHA256' "
-            "with the actual SHA256 of the package."
-        )
-        print(
-            f"To calculate the SHA256, you can download {pypi_url} "
-            "and run: shasum -a 256 <package>"
-        )
+        msg1 = "Note: You need to replace 'REPLACE_WITH_ACTUAL_SHA256'"
+        msg2 = "with the actual SHA256 of the package."
+        print(f"{msg1} {msg2}")
+
+        cmd = "shasum -a 256 <package>"
+        print(f"To calculate the SHA256, you can download {pypi_url} and run: {cmd}")
 
     # Commit changes if requested
     if args.commit:
         print("Checking for changes to commit...")
-        commit_changes(formula_path, version)
+        commit_changes(formula_path, version, package_name)
 
     return 0
 
