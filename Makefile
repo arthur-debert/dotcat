@@ -19,21 +19,25 @@ clean:
 	@rm -rf ./completions
 	@rm -rf ./man
 
+# Optional: Only run these if the app supports completions
 completions:
-	@echo "Generating shell completions..."
+	@echo "NOTE: Skipping completions generation (not implemented)"
 	@mkdir -p ./completions
-	@go run ./cmd/treex completion bash > ./completions/treex.bash
-	@go run ./cmd/treex completion zsh > ./completions/_treex
-	@go run ./cmd/treex completion fish > ./completions/treex.fish
+	@touch ./completions/$(BINARY_NAME).bash
+	@touch ./completions/_$(BINARY_NAME)
+	@touch ./completions/$(BINARY_NAME).fish
 
+# Optional: Only run these if the app supports man pages
 man-page:
-	@echo "Generating man page..."
+	@echo "NOTE: Skipping man page generation (not implemented)"
 	@mkdir -p ./man/man1
-	@go run ./cmd/treex man --path ./man/man1
+	@touch ./man/man1/$(BINARY_NAME).1
 
-release: completions man-page
+# Skip completions and man-page for now as they're not critical
+release:
 	@echo "Creating a release..."
 	@docker run --rm -it \
-		-v "$(CURDIR):/go/src/github.com/arthur-debert/treex" \
-		-w /go/src/github.com/arthur-debert/treex \
+		-v "$(CURDIR):/go/src/github.com/adebert/$(BINARY_NAME)" \
+		-w /go/src/github.com/adebert/$(BINARY_NAME) \
+		-e PKG_NAME=$(BINARY_NAME) \
 		goreleaser/goreleaser release --snapshot --clean 
