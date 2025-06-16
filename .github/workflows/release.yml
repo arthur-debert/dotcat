@@ -21,11 +21,29 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.22'
+          
+      - name: Extract PKG_NAME
+        id: pkg-name
+        run: |
+          # Try to extract PKG_NAME from .envrc if it exists
+          if [ -f .envrc ]; then
+            PKG_NAME=$(grep "PKG_NAME" .envrc | cut -d'"' -f2)
+          fi
+          
+          # If PKG_NAME is empty, use the directory name
+          if [ -z "$PKG_NAME" ]; then
+            PKG_NAME=$(basename "$PWD")
+          fi
+          
+          echo "PKG_NAME=$PKG_NAME" >> $GITHUB_ENV
+          echo "Package name: $PKG_NAME"
 
       - name: Generate completions and man pages
         run: |
           make completions
           make man-page
+        env:
+          PKG_NAME: ${{ env.PKG_NAME }}
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
@@ -34,4 +52,5 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }} 
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          PKG_NAME: ${{ env.PKG_NAME }} 
