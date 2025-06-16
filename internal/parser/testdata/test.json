@@ -1,0 +1,17 @@
+{
+    "name": "dotcat",
+    "version": "0.1.0",
+    "dependencies": {
+        "go": "1.18"
+    },
+    "contributors": [
+        {
+            "name": "John Doe",
+            "email": "john.doe@example.com"
+        },
+        {
+            "name": "Jane Doe",
+            "email": "jane.doe@example.com"
+        }
+    ]
+}

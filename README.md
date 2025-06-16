@@ -1,50 +1,67 @@
-# Go CLI Project Template
+# dotcat: Cat Structured Data, in Style
 
-This repository is a template for creating Go command-line interface (CLI) projects. It includes a basic structure, build scripts, and a pre-configured release process with GoReleaser.
+Dealing with structured data in shell scripts is all but impossible.
+`dotcat` gives you the ability to fetch structured data as easily as using cat it.
 
-## Getting Started
+```bash
+# Access data by attribute path
+dotcat data.json person.name.first
+# John
+dotcat data.json person.name.last
+# Doe
 
-1. **Clone this repository:**
+# Controle your output format
+dotcat data.json person.name --output=yaml
+# name:
+#   first: John
+#   last: Doe
+dotcat data.json person.name --output=json
+# {"first": "John", "last": "Doe"}
 
-    ```bash
-    git clone https://github.com/your-username/your-project
-    cd your-project
-    ```
+# List access
+dotcat data.json person.friends@0
+# {"name":{"first": "Alice", "last": "Smith"}, "age": 25} -> item access
+dotcat data.json person.friends@2:4
+# [{"name":{"first": "Alice", "last": "Smith"}, "age": 25}, {"name":{"first": "Bob", "last": "Johnson"}, "age": 30}]  -> slice access
+dotcat data.json person.friends@4:-1
+# ... from 5th to last item
+```
 
-2. **Set your package name:**
-    - Open the `.envr` file.
-    - Change `export PKG_NAME="myapp"` to your desired application name (e.g., `export PKG_NAME="my-cli-tool"`).
-    - If you're using `direnv`, run `direnv allow` to load the environment variable.
+## The good times are here
 
-3. **Update `go.mod`:**
-    - Open `go.mod` and change `module github.com/your-username/your-project` to your project's module path.
+Easily read values from **JSON, YAML, TOML, and INI** files without complex scripting or manual parsing.
 
-4. **Install dependencies:**
+Access deeply **nested values** using intuitive dot-separated paths (e.g., **`person.first.name`**) while controlling the **output format** with `--output` flag.
 
-    ```bash
-    go mod tidy
-    ```
+Dotcat is a good **unix citizen** with well structured **exit codes** so it can take part of your command pipeline like cat or grep would.
 
-5. **Build your application:**
+Includes **ZSH autocompletion** for both file paths and dotted paths, making it even easier to navigate complex data structures.
 
-    ```bash
-    make build
-    ```
+## Installation
 
-    This will create a binary in the `bin/` directory with the name you set in `.envr`.
+If you have a global pip install, this will install dotcat globally:
 
-## Features
+```bash
+brew install dotcat
+```
 
-- **Cobra CLI Framework:** Comes with a basic Cobra setup in `cmd/app/main.go`.
-- **GoReleaser Integration:** The `.goreleaser.yml` file is configured to build and release your application for multiple platforms.
-- **Makefile:** Includes common tasks like `build`, `test`, and `clean`.
-- **GitHub Actions:** Includes workflows for testing and releasing your application.
+## ZSH Completion
 
-## Development
+Dotcat comes with ZSH completion support that is automatically installed when you install the package with pip. The installation script will:
 
-- Your main application code goes in `cmd/app/main.go`.
-- You can add shared packages in the `internal/` directory.
+1. Look for appropriate ZSH completion directories
+2. Install the completion files if possible
+3. Notify you of the installation location
 
-## License
+If the automatic installation fails, you can manually install the completions:
 
-[MIT](LICENSE)
+```bash
+# Copy the completion script to your ZSH completions directory
+mkdir -p ~/.zsh/completions
+cp /path/to/installed/package/zsh/_dotcat ~/.zsh/completions/
+
+# Or run the installation script directly
+dotcat-install-completions
+```
+
+See the [ZSH completion README](zsh/README.md) for detailed instructions.
