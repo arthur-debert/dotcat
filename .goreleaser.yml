@@ -49,14 +49,14 @@ changelog:
 brews:
   - name: "{{ if .Env.PKG_NAME }}{{ .Env.PKG_NAME }}{{ else }}dotcat{{ end }}"
     repository:
-      owner: adebert
+      owner: arthur-debert
       name: homebrew-tools
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     directory: "Formula"
     commit_author:
       name: goreleaserbot
       email: bot@goreleaser.com
-    homepage: "https://github.com/adebert/dotcat"
+    homepage: "https://github.com/arthur-debert/dotcat"
     description: "A CLI utility for reading values from structured data files."
     license: "MIT"
     test: |
@@ -78,7 +78,7 @@ nfpms:
     builds:
       - dotcat
     vendor: "Arthur Debert"
-    homepage: "https://github.com/adebert/dotcat"
+    homepage: "https://github.com/arthur-debert/dotcat"
     maintainer: "Arthur Debert <arthur-debert@users.noreply.github.com>"
     description: "A CLI utility for reading values from structured data files."
     license: "MIT"

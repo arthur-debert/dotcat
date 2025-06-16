@@ -1,4 +1,4 @@
-module github.com/adebert/dotcat
+module github.com/arthur-debert/dotcat
 
 go 1.18
 

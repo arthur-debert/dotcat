@@ -5,9 +5,9 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/adebert/dotcat/internal/parser"
-	"github.com/adebert/dotcat/internal/data"
-	"github.com/adebert/dotcat/internal/formatter"
+	"github.com/arthur-debert/dotcat/internal/parser"
+	"github.com/arthur-debert/dotcat/internal/data"
+	"github.com/arthur-debert/dotcat/internal/formatter"
 )
 
 // Version information - will be set during build

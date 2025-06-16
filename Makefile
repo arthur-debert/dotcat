@@ -37,7 +37,7 @@ man-page:
 release:
 	@echo "Creating a release..."
 	@docker run --rm -it \
-		-v "$(CURDIR):/go/src/github.com/adebert/$(BINARY_NAME)" \
-		-w /go/src/github.com/adebert/$(BINARY_NAME) \
+		-v "$(CURDIR):/go/src/github.com/arthur-debert/$(BINARY_NAME)" \
+		-w /go/src/github.com/arthur-debert/$(BINARY_NAME) \
 		-e PKG_NAME=$(BINARY_NAME) \
 		goreleaser/goreleaser release --snapshot --clean 
