@@ -17,14 +17,14 @@ var rootCmd = &cobra.Command{
 	Short: "Get a value from a structured data file using a dotted path",
 	Long: `dotcat allows you to read a value from a structured data file
 (JSON, YAML, TOML, or INI) using a dot-separated path to the desired key.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) != 2 {
 			fmt.Println("Usage: ")
 			fmt.Println("dotcat  <file> <variable path> ")
 			fmt.Println("dotcat data.json person.name")
 			fmt.Println()
 			cmd.Usage()
-			os.Exit(1)
+			return fmt.Errorf("accepts 2 arg(s), received %d", len(args))
 		}
 
 		filePath := args[0]
@@ -32,23 +32,21 @@ var rootCmd = &cobra.Command{
 
 		parsedData, err := parser.ParseFile(filePath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error parsing file: %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("Error parsing file: %w", err)
 		}
 
 		value, err := data.FromDottedPath(parsedData, dotPath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error looking up value: %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("Error looking up value: %w", err)
 		}
 
 		formattedValue, err := formatter.FormatOutput(value, outputFormat)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error formatting output: %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("Error formatting output: %w", err)
 		}
 
 		fmt.Println(formattedValue)
+		return nil
 	},
 }
 
@@ -58,6 +56,7 @@ func init() {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }

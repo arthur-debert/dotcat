@@ -63,7 +63,22 @@ func parseINI(content []byte) (interface{}, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not parse INI: %w", err)
 	}
-	// This is a simplification. The Python version returns a map of sections.
-	// For now, we return the whole object. We may need to refine this.
-	return cfg, nil
+	
+	// Convert the INI File structure to a map of maps for consistent access pattern
+	result := make(map[string]interface{})
+	
+	for _, section := range cfg.Sections() {
+		if section.Name() == "DEFAULT" && len(section.Keys()) == 0 {
+			continue // Skip empty DEFAULT section
+		}
+		
+		sectionMap := make(map[string]interface{})
+		for _, key := range section.Keys() {
+			sectionMap[key.Name()] = key.Value()
+		}
+		
+		result[section.Name()] = sectionMap
+	}
+	
+	return result, nil
 } 

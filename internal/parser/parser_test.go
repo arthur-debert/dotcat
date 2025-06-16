@@ -4,7 +4,6 @@ import (
 	"testing"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/ini.v1"
 )
 
 func TestParseFile_JSON(t *testing.T) {
@@ -56,15 +55,21 @@ func TestParseFile_INI(t *testing.T) {
 	data, err := ParseFile("testdata/test.ini")
 	require.NoError(t, err)
 
-	cfg, ok := data.(*ini.File)
-	require.True(t, ok, "data should be a *ini.File")
+	m, ok := data.(map[string]interface{})
+	require.True(t, ok, "data should be a map")
 
-	dotcatSection, err := cfg.GetSection("dotcat")
-	require.NoError(t, err)
-	assert.Equal(t, "dotcat", dotcatSection.Key("name").String())
-	assert.Equal(t, "0.1.0", dotcatSection.Key("version").String())
+	dotcatSection, ok := m["dotcat"].(map[string]interface{})
+	require.True(t, ok, "dotcat section should be a map")
+	assert.Equal(t, "dotcat", dotcatSection["name"])
+	assert.Equal(t, "0.1.0", dotcatSection["version"])
 
-	depsSection, err := cfg.GetSection("dependencies")
-	require.NoError(t, err)
-	assert.Equal(t, "1.18", depsSection.Key("go").String())
-} 
+	depsSection, ok := m["dependencies"].(map[string]interface{})
+	require.True(t, ok, "dependencies section should be a map")
+	assert.Equal(t, "1.18", depsSection["go"])
+}
+
+func TestParseFile_Unsupported(t *testing.T) {
+	_, err := ParseFile("testdata/test.txt")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unsupported file format")
+}

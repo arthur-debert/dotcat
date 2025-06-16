@@ -1,7 +1,83 @@
-# dotcat: Cat Structured Data, in Style
+# dotcat - Structured Data Reader
 
-Dealing with structured data in shell scripts is all but impossible.
-`dotcat` gives you the ability to fetch structured data as easily as using cat it.
+`dotcat` is a CLI tool for reading structured data files (JSON, YAML, TOML, INI) using dot notation to access nested values.
+
+## Features
+
+- Supports multiple file formats: JSON, YAML, TOML, and INI
+- Uses dot notation to access nested values (e.g., `user.address.city`)
+- Supports list access with `@` symbol (e.g., `users@0.name`)
+- Multiple output formats: raw, JSON, YAML, TOML, and INI
+
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/adebert/dotcat
+cd dotcat
+
+# Build the binary
+make build
+```
+
+## Usage
+
+```bash
+# Basic usage
+dotcat <file> <dotted_path>
+
+# Example: Read a value from a JSON file
+dotcat config.json user.name
+
+# Example: With specific output format
+dotcat config.json user.address --output json
+
+# Example: Access an array element
+dotcat config.json users@0.name
+```
+
+## Examples
+
+```bash
+# Read a simple value
+$ dotcat config.json version
+1.0.0
+
+# Read a nested value
+$ dotcat config.json user.address.city
+New York
+
+# Read an array element
+$ dotcat config.json users@0.name
+John Doe
+
+# Output as JSON
+$ dotcat config.json user --output json
+{
+  "name": "John Doe",
+  "address": {
+    "city": "New York",
+    "zip": "10001"
+  }
+}
+```
+
+## Running Tests
+
+```bash
+# Run all tests
+./run-tests.sh
+
+# Run tests with coverage report
+./run-tests.sh --coverage
+
+# Open HTML coverage report
+./run-tests.sh --coverage --html
+```
+
+## License
+
+[MIT](LICENSE)
 
 ```bash
 # Access data by attribute path
