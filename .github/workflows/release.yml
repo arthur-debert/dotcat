@@ -38,6 +38,11 @@ jobs:
           echo "PKG_NAME=$PKG_NAME" >> $GITHUB_ENV
           echo "Package name: $PKG_NAME"
 
+      - name: Build binary first
+        run: make build
+        env:
+          PKG_NAME: ${{ env.PKG_NAME }}
+
       - name: Generate completions and man pages
         run: |
           make completions
