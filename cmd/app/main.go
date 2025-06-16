@@ -10,7 +10,15 @@ import (
 	"github.com/adebert/dotcat/internal/formatter"
 )
 
+// Version information - will be set during build
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 var outputFormat string
+var showVersion bool
 
 var rootCmd = &cobra.Command{
 	Use:   "dotcat [file] [dotted_path]",
@@ -18,6 +26,12 @@ var rootCmd = &cobra.Command{
 	Long: `dotcat allows you to read a value from a structured data file
 (JSON, YAML, TOML, or INI) using a dot-separated path to the desired key.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// If version flag is provided, print version and exit
+		if showVersion {
+			fmt.Printf("dotcat version %s, commit %s, built at %s\n", version, commit, date)
+			return nil
+		}
+	
 		if len(args) != 2 {
 			fmt.Println("Usage: ")
 			fmt.Println("dotcat  <file> <variable path> ")
@@ -52,6 +66,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.Flags().StringVarP(&outputFormat, "output", "o", "raw", "Output format (raw, json, yaml, toml, ini)")
+	rootCmd.Flags().BoolVarP(&showVersion, "version", "v", false, "Show version information")
 }
 
 func main() {

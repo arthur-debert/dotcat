@@ -46,6 +46,28 @@ changelog:
       - "Merge pull request"
       - "Merge branch"
 
+brews:
+  - name: "{{ if .Env.PKG_NAME }}{{ .Env.PKG_NAME }}{{ else }}dotcat{{ end }}"
+    repository:
+      owner: adebert
+      name: homebrew-tools
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    directory: "Formula"
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    homepage: "https://github.com/adebert/dotcat"
+    description: "A CLI utility for reading values from structured data files."
+    license: "MIT"
+    test: |
+      system "#{bin}/{{ if .Env.PKG_NAME }}{{ .Env.PKG_NAME }}{{ else }}dotcat{{ end }} --version"
+    install: |
+      bin.install "{{ if .Env.PKG_NAME }}{{ .Env.PKG_NAME }}{{ else }}dotcat{{ end }}"
+      man1.install "man/man1/{{ if .Env.PKG_NAME }}{{ .Env.PKG_NAME }}{{ else }}dotcat{{ end }}.1"
+      bash_completion.install "completions/{{ if .Env.PKG_NAME }}{{ .Env.PKG_NAME }}{{ else }}dotcat{{ end }}.bash" => "{{ if .Env.PKG_NAME }}{{ .Env.PKG_NAME }}{{ else }}dotcat{{ end }}"
+      zsh_completion.install "completions/_{{ if .Env.PKG_NAME }}{{ .Env.PKG_NAME }}{{ else }}dotcat{{ end }}" => "_{{ if .Env.PKG_NAME }}{{ .Env.PKG_NAME }}{{ else }}dotcat{{ end }}"
+      fish_completion.install "completions/{{ if .Env.PKG_NAME }}{{ .Env.PKG_NAME }}{{ else }}dotcat{{ end }}.fish"
+
 # nFPM packages (deb, rpm, etc.)
 # https://goreleaser.com/customization/nfpm/
 nfpms:
