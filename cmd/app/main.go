@@ -25,6 +25,7 @@ var rootCmd = &cobra.Command{
 	Short: "Get a value from a structured data file using a dotted path",
 	Long: `dotcat allows you to read a value from a structured data file
 (JSON, YAML, TOML, or INI) using a dot-separated path to the desired key.`,
+	Args: cobra.ArbitraryArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// If version flag is provided, print version and exit
 		if showVersion {
